@@ -8,9 +8,11 @@ class Post {
   final String userId;
   final String userFullName;
   final String userEmail;
-  final String userProfilePicturePath;
-  String? imageUrl;
-  String? file;
+  final String? userProfilePicturePath;
+  List<String>? imageUrls;
+  List<String>? fileUrls;
+  List<int>? fileId;
+  List<int>? pictureId;
 
   Post({
     required this.postId,
@@ -19,9 +21,11 @@ class Post {
     required this.userId,
     required this.userFullName,
     required this.userEmail,
-    required this.userProfilePicturePath,
-    this.imageUrl,
-    this.file,
+    this.userProfilePicturePath,
+    this.imageUrls,
+    this.fileUrls,
+    this.fileId,
+    this.pictureId,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -33,39 +37,50 @@ class Post {
       userFullName: json['userFullName'],
       userEmail: json['userEmail'],
       userProfilePicturePath: json['userProfilePicturePath'],
+      fileId: json['postFileIds'] != null
+          ? List<int>.from(json['postFileIds'])
+          : null,
+      pictureId: json['postPictureIds'] != null
+          ? List<int>.from(json['postPictureIds'])
+          : null,
     );
   }
 
-  Future<void> fetchImageUrl() async {
-    final apiUrl = '${baseUrl}/PictureUpload/$postId/picture-path';
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        imageUrl = response.body;
-      } else {
-        imageUrl = null;
+  Future<void> fetchImageUrls() async {
+    if (pictureId != null) {
+      imageUrls = [];
+      for (var id in pictureId!) {
+        final apiUrl = '${baseUrl}/PictureUpload/$id/picture-path';
+        try {
+          final response = await http.get(Uri.parse(apiUrl));
+          if (response.statusCode == 200) {
+            imageUrls!.add(response.body);
+          } else {
+            imageUrls!.add('Error fetching image URL');
+          }
+        } catch (e) {
+          imageUrls!.add('Error fetching image URL: $e');
+        }
       }
-    } catch (e) {
-      imageUrl = null;
-      print('Error fetching image URL: $e');
     }
   }
 
-
-  Future<void> fetchFileUrl() async {
-    final apiUrl = '${baseUrl}/FileUpload/$postId/url';
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        file = response.body;
-        print(response.body);
-      } else {
-        file = null;
+  Future<void> fetchFileUrls() async {
+    if (fileId != null) {
+      fileUrls = [];
+      for (var id in fileId!) {
+        final apiUrl = '${baseUrl}/FileUpload/$id/url';
+        try {
+          final response = await http.get(Uri.parse(apiUrl));
+          if (response.statusCode == 200) {
+            fileUrls!.add(response.body);
+          } else {
+            fileUrls!.add('Error fetching file URL');
+          }
+        } catch (e) {
+          fileUrls!.add('Error fetching file URL: $e');
+        }
       }
-    } catch (e) {
-      file = null;
-      print('Error fetching file URL: $e');
     }
   }
 }
-

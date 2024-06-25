@@ -28,14 +28,16 @@ class _HRPostsPageState extends State<HRPostsPage> {
     String? userId = prefs.getString('userId');
     final apiUrl = '${baseUrl}/Post/HrPost/$userId';
     final response = await http.get(Uri.parse(apiUrl));
+    print(response.statusCode);
+    print(response.body);
 
     if (response.statusCode == 200) {
       final List<dynamic> responseData = jsonDecode(response.body);
       List<Post> loadedPosts = [];
       for (var postJson in responseData) {
         Post post = Post.fromJson(postJson);
-        await post.fetchImageUrl();
-        await post.fetchFileUrl();
+        await post.fetchImageUrls();
+        await post.fetchFileUrls();
         loadedPosts.add(post);
       }
       setState(() {
@@ -76,19 +78,23 @@ class _HRPostsPageState extends State<HRPostsPage> {
                         children: [
                           Row(
                             children: [
-                              if (post.userProfilePicturePath.isNotEmpty)
+                              if (post.userProfilePicturePath != null &&
+                                  post.userProfilePicturePath!.isNotEmpty)
                                 CircleAvatar(
                                   radius: 20,
                                   backgroundImage: NetworkImage(
                                     'http://10.0.2.2:5266${post.userProfilePicturePath}',
                                   ),
                                 ),
-                                SizedBox(width: 7,),
+                              SizedBox(
+                                width: 7,
+                              ),
                               Expanded(
                                 child: Text(
                                   post.userFullName,
                                   style: TextStyle(
-                                      fontSize: 16.0, fontWeight: FontWeight.bold),
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ],
@@ -99,58 +105,66 @@ class _HRPostsPageState extends State<HRPostsPage> {
                             style: TextStyle(fontSize: 14.0),
                           ),
                           SizedBox(height: 8.0),
-                          
-                          if (post.imageUrl != null) ...[
-                            SizedBox(height: 10),
-                            Center(
-                              child: SizedBox(
-                                width: 300,
-                                height: 300,
-                                child: Image.network(
-                                  post.imageUrl!,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Text('Image not available');
-                                  },
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 10,),
-                          ],
-                          if (post.file != null) ...[
-                            SizedBox(height: 10),
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Card(
-                                  child: ListTile(
-                                    title: Row(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        Icon(
-                                          Icons.picture_as_pdf,
-                                          color: mainAppColor,
-                                        ),
-                                        SizedBox(width: 10),
-                                        Flexible(
-                                          child: Text(
-                                            post.file!,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontFamily: appFont,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                          ),
-                                        ),
-                                        
-                                      ],
+                          if (post.imageUrls != null &&
+                              post.imageUrls!.isNotEmpty) ...[
+                            for (var imageUrl in post.imageUrls!)
+                              if (imageUrl != 'Error fetching image URL') ...[
+                                SizedBox(height: 10),
+                                Center(
+                                  child: SizedBox(
+                                    width: 300,
+                                    height: 300,
+                                    child: Image.network(
+                                      imageUrl,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Text('Image not available');
+                                      },
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
-                              ),
-                            )
+                                SizedBox(height: 10),
+                              ],
+                          ],
+                          if (post.fileUrls != null &&
+                              post.fileUrls!.isNotEmpty) ...[
+                            for (var fileUrl in post.fileUrls!)
+                              if (fileUrl != 'Error fetching file URL') ...[
+                                SizedBox(height: 10),
+                                Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Card(
+                                      child: ListTile(
+                                        title: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Icon(
+                                              Icons.description,
+                                              color: mainAppColor,
+                                            ),
+                                            SizedBox(width: 10),
+                                            Flexible(
+                                              child: Text(
+                                                fileUrl,
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontFamily: appFont,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
                           ],
                           Center(
                             child: Text(
@@ -167,12 +181,12 @@ class _HRPostsPageState extends State<HRPostsPage> {
                             text: 'Applied Candidates',
                             onPressed: () {
                               Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            HRPostCandidatesPage(postId: post.postId),
-                      ),
-                    );
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      HRPostCandidatesPage(postId: post.postId),
+                                ),
+                              );
                             },
                           )
                         ],

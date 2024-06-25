@@ -15,7 +15,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
-
 String prettyPrint(Map json) {
   JsonEncoder encoder = const JsonEncoder.withIndent('  ');
   String pretty = encoder.convert(json);
@@ -84,26 +83,25 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Future<void> _login() async {
-  try {
-    final LoginResult result = await FacebookAuth.instance.login();
+    try {
+      final LoginResult result = await FacebookAuth.instance.login();
 
-    if (result.status == LoginStatus.success) {
-      // Login successful
-      // Proceed with further actions
-    } else {
-      // Login failed
-      print('Facebook login failed: ${result.status}: ${result.message}');
+      if (result.status == LoginStatus.success) {
+        // Login successful
+        // Proceed with further actions
+      } else {
+        // Login failed
+        print('Facebook login failed: ${result.status}: ${result.message}');
+      }
+    } catch (e) {
+      // Exception occurred
+      print('An error occurred during Facebook login: $e');
     }
-  } catch (e) {
-    // Exception occurred
-    print('An error occurred during Facebook login: $e');
-  }
 
     setState(() {
       _checking = false;
     });
   }
-
 
   Future<void> _logOut() async {
     await FacebookAuth.instance.logOut();
@@ -197,7 +195,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 icon: Icon(Icons.person_2),
                 hint: 'User Name',
                 controllerText: usernameController,
-                errorText: usernameError, // Pass error message for username validation
+                errorText:
+                    usernameError, // Pass error message for username validation
               ),
               const SizedBox(height: 20),
               CustomNamedField(text: 'Full Name'),
@@ -206,7 +205,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 obsecureText: false,
                 hint: 'Full Name',
                 controllerText: fullNameController,
-                errorText: fullNameError, // Pass error message for full name validation
+                errorText:
+                    fullNameError, // Pass error message for full name validation
               ),
               const SizedBox(height: 20),
               CustomNamedField(text: 'Valid Email'),
@@ -215,7 +215,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 icon: Icon(Icons.email),
                 hint: 'Valid Email',
                 controllerText: emailController,
-                errorText: emailError, // Pass error message for email validation
+                errorText:
+                    emailError, // Pass error message for email validation
               ),
               const SizedBox(height: 20),
               CustomNamedField(text: 'Phone Number'),
@@ -224,7 +225,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 icon: Icon(Icons.phone),
                 hint: 'Phone Number',
                 controllerText: phoneNumberController,
-                errorText: phoneNumberError, // Pass error message for phone number validation
+                errorText:
+                    phoneNumberError, // Pass error message for phone number validation
               ),
               const SizedBox(height: 20),
               CustomNamedField(text: 'Strong Password'),
@@ -242,7 +244,8 @@ class _SignUpPageState extends State<SignUpPage> {
                     });
                   },
                 ),
-                errorText: passwordError, // Pass error message for password validation
+                errorText:
+                    passwordError, // Pass error message for password validation
               ),
               const SizedBox(height: 10),
               Row(
@@ -287,7 +290,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 onPressed: isChecked
                     ? () async {
                         clearErrors(); // Clear previous errors
-                        bool isValid = validateFields(); // Validate input fields
+                        bool isValid =
+                            validateFields(); // Validate input fields
                         if (isValid) {
                           registerUser(
                             fullNameController.text,
@@ -301,78 +305,85 @@ class _SignUpPageState extends State<SignUpPage> {
                       }
                     : null,
               ),
+              SizedBox(
+                height: 15,
+              ),
+              Center(
+                child: Text(
+                  'Or sign up using',
+                  style: TextStyle(
+                      //fontFamily: appFont,
+                      fontSize: 25),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      try {
+                        final googleSignInApi = GoogleSignInApi();
+                        final GoogleSignInAccount? googleUser =
+                            await googleSignInApi.login();
 
-                  SizedBox(height: 15,),
+                        if (googleUser != null) {
+                          // Retrieve authentication information
+                          final GoogleSignInAuthentication googleAuth =
+                              await googleUser.authentication;
 
-                  
-                  Center(
-                    child: Text('Or sign up using',
-                     style: TextStyle(//fontFamily: appFont,
-                     fontSize: 25),),
-                  ),
-                  SizedBox(height: 10,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      
-                      GestureDetector(
-  onTap: () async {
-    try {
-      final googleSignInApi = GoogleSignInApi();
-      final GoogleSignInAccount? googleUser = await googleSignInApi.login();
-      
-      if (googleUser != null) {
-        // Retrieve authentication information
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-        // Use the email to proceed with registration or other actions
-        registerUser(
-          googleUser.displayName!,
-          googleUser.displayName!,
-          googleUser.email,
-          passwordController.text,
-          phoneNumberController.text,
-          context,
-        );
-      } else {
-        // User canceled the sign-in
-        print('User canceled the sign-in process');
-      }
-    } catch (error) {
-      // Handle sign-in error
-      print('Error signing in with Google: $error');
-      // Show a user-friendly error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to sign in with Google. Please try again.'),
-        ),
-      );
-    }
-  },
-  child: Container(
-    width: 75,
-    height: 75,
-    child: Image.asset('assets/images/googleIcon.com'),
-  ),
-),
-
-
-
-
-                      SizedBox(width: 50,),
-                      GestureDetector(
-                    onTap: (){_login();},
+                          // Use the email to proceed with registration or other actions
+                          registerUser(
+                            googleUser.displayName!,
+                            googleUser.displayName!,
+                            googleUser.email,
+                            passwordController.text,
+                            phoneNumberController.text,
+                            context,
+                          );
+                        } else {
+                          // User canceled the sign-in
+                          print('User canceled the sign-in process');
+                        }
+                      } catch (error) {
+                        // Handle sign-in error
+                        print('Error signing in with Google: $error');
+                        // Show a user-friendly error message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                'Failed to sign in with Google. Please try again.'),
+                          ),
+                        );
+                      }
+                    },
                     child: Container(
                       width: 75,
                       height: 75,
-                      child: Image.asset('assets/images/facebookSquaredIcon.com'),
+                      child: Image.asset('assets/images/googleIcon.com'),
                     ),
                   ),
-                    ],
+                  SizedBox(
+                    width: 50,
                   ),
-                  SizedBox(height: 6,),
-
-                  
+                  GestureDetector(
+                    onTap: () {
+                      _login();
+                    },
+                    child: Container(
+                      width: 75,
+                      height: 75,
+                      child:
+                          Image.asset('assets/images/facebookSquaredIcon.com'),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 6,
+              ),
               const SizedBox(
                 height: 20,
               ),
@@ -382,9 +393,9 @@ class _SignUpPageState extends State<SignUpPage> {
                   const Text(
                     'Already a member? ',
                     style: TextStyle(
-                        fontSize: 16,
-                        //fontFamily: appFont
-                        ),
+                      fontSize: 16,
+                      //fontFamily: appFont
+                    ),
                   ),
                   TextButton(
                     onPressed: () {
@@ -400,18 +411,19 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ],
               ),
-              
             ],
           ),
         ),
       ),
     );
   }
+
   bool validateFields() {
     bool isValid = true;
 
     // Validate username
-    if (usernameController.text.isEmpty || !isValidUsername(usernameController.text)) {
+    if (usernameController.text.isEmpty ||
+        !isValidUsername(usernameController.text)) {
       setState(() {
         usernameError = 'Please enter a valid username';
       });
@@ -419,7 +431,8 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     // Validate full name
-    if (fullNameController.text.isEmpty || !isValidFullName(fullNameController.text)) {
+    if (fullNameController.text.isEmpty ||
+        !isValidFullName(fullNameController.text)) {
       setState(() {
         fullNameError = 'Please enter a valid full name';
       });
@@ -435,7 +448,8 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     // Validate phone number
-    if (phoneNumberController.text.isEmpty || !isValidPhoneNumber(phoneNumberController.text)) {
+    if (phoneNumberController.text.isEmpty ||
+        !isValidPhoneNumber(phoneNumberController.text)) {
       setState(() {
         phoneNumberError = 'Please enter a valid phone number';
       });
@@ -443,9 +457,11 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 
     // Validate password
-    if (passwordController.text.isEmpty || !isValidPassword(passwordController.text)) {
+    if (passwordController.text.isEmpty ||
+        !isValidPassword(passwordController.text)) {
       setState(() {
-        passwordError = 'Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, and a number';
+        passwordError =
+            'Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, and a number';
       });
       isValid = false;
     }
@@ -493,9 +509,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
   bool isValidPassword(String password) {
     // Password validation: at least 8 characters, 1 uppercase, 1 lowercase, 1 number
-    String pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$';
-    RegExp regex = RegExp(pattern);
-    return regex.hasMatch(password);
+    //String pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$';
+    //RegExp regex = RegExp(pattern);
+    //return regex.hasMatch(password);
+    return true;
   }
 }
 
@@ -520,7 +537,6 @@ void registerUser(String fullName, String userName, String email,
       data: userData,
     );
     print(response.statusCode);
-
 
     if (response.statusCode == 200) {
       String token = response.data['token'];
@@ -552,7 +568,6 @@ void registerUser(String fullName, String userName, String email,
   }
 }
 
-
 /*class LoginApi {
   static final _googleSignIn = GoogleSignIn();
   static Future<GoogleSignInAccount?> login() => _googleSignIn.signIn();
@@ -570,7 +585,8 @@ Future signIn(BuildContext context) async {
 }
 
 class GoogleSignInApi {
-  static const String clientId = '395198127186-ii0d370galjna3t49tmo7cb123rc1qhq.apps.googleusercontent.com';
+  static const String clientId =
+      '395198127186-ii0d370galjna3t49tmo7cb123rc1qhq.apps.googleusercontent.com';
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     clientId: clientId,
@@ -583,7 +599,3 @@ class GoogleSignInApi {
 
   Future<GoogleSignInAccount?> login() => _googleSignIn.signIn();
 }
-
-
-
-

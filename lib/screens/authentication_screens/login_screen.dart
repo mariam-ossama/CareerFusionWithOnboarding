@@ -3,6 +3,7 @@ import 'dart:ffi';
 
 import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/models/candidate.dart';
+import 'package:career_fusion/screens/HR_screens/hr_account_screen.dart';
 import 'package:career_fusion/screens/candidate_screens/candidate_account_screen.dart';
 import 'package:career_fusion/screens/authentication_screens/forgot_password_screen.dart';
 import 'package:career_fusion/screens/authentication_screens/role_selection_screen.dart';
@@ -45,8 +46,8 @@ class _LoginPageState extends State<LoginPage> {
         title: const Text(
           'CareerFusion',
           style: TextStyle(
-              color: Colors.white, //fontFamily: appFont
-              ),
+            color: Colors.white, //fontFamily: appFont
+          ),
         ),
         backgroundColor: mainAppColor,
       ),
@@ -73,10 +74,10 @@ class _LoginPageState extends State<LoginPage> {
                         Text(
                           'Welcome back',
                           style: TextStyle(
-                              fontSize: 35,
-                              color: Colors.black,
-                              //fontFamily: appFont
-                              ),
+                            fontSize: 35,
+                            color: Colors.black,
+                            //fontFamily: appFont
+                          ),
                         ),
                       ],
                     ),
@@ -133,7 +134,8 @@ class _LoginPageState extends State<LoginPage> {
                   });
                 },
               ),
-              errorText: passwordError, // Pass error message for password validation
+              errorText:
+                  passwordError, // Pass error message for password validation
             ),
             const SizedBox(height: 8),
             const SizedBox(
@@ -153,8 +155,8 @@ class _LoginPageState extends State<LoginPage> {
                 const Text(
                   'remember me',
                   style: TextStyle(
-                      fontSize: 14, //fontFamily: appFont
-                      ),
+                    fontSize: 14, //fontFamily: appFont
+                  ),
                 ),
                 const SizedBox(
                   width: 130,
@@ -162,9 +164,9 @@ class _LoginPageState extends State<LoginPage> {
                 TextButton(
                   onPressed: () {
                     Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ForgotPasswordPage()));
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ForgotPasswordPage()));
                   },
                   child: const Text(
                     'Forgot password?',
@@ -186,7 +188,8 @@ class _LoginPageState extends State<LoginPage> {
                 bool isValid = validateFields(); // Validate input fields
                 if (isValid) {
                   // Only attempt login if fields are valid
-                  loginUser(emailController.text, passwordController.text, context);
+                  loginUser(
+                      emailController.text, passwordController.text, context);
                 }
               },
             ),
@@ -222,6 +225,7 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+
   void clearErrors() {
     setState(() {
       emailError = null;
@@ -266,8 +270,8 @@ class _LoginPageState extends State<LoginPage> {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
   }
 
-
-  Future<void> saveTokenAndNavigate(String token, String userId, BuildContext context) async {
+  Future<void> saveTokenAndNavigate(
+      String token, String userId, BuildContext context) async {
     await SharedPreferences.getInstance().then((prefs) {
       prefs.setString('token', token);
       prefs.setString('userId', userId);
@@ -278,7 +282,6 @@ class _LoginPageState extends State<LoginPage> {
       MaterialPageRoute(builder: (context) => RoleSelectionPage()),
     );
   }
-
 }
 
 // In the login page after a successful login
@@ -313,7 +316,7 @@ void loginUser(String email, String password, BuildContext context) async {
         // Navigate to RoleSelectionPage
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => RoleSelectionPage()),
+          MaterialPageRoute(builder: (context) => HRAccountPage()),
           (Route<dynamic> route) => false,
         );
       } else {
@@ -345,8 +348,6 @@ void loginUser(String email, String password, BuildContext context) async {
     );
   }
 }
-
-
 
 class AuthProvider with ChangeNotifier {
   String? _userId;

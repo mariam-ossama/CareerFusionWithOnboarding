@@ -14,7 +14,6 @@ import 'package:career_fusion/widgets/custom_button.dart';
 import 'package:career_fusion/widgets/custom_job_card.dart';
 import 'package:career_fusion/widgets/custom_menu_card.dart';
 
-
 class AccountPage extends StatefulWidget {
   AccountPage({Key? key}) : super(key: key);
 
@@ -32,27 +31,27 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Future<void> _fetchPosts() async {
-  final apiUrl = '${baseUrl}/Post';
-  final response = await http.get(Uri.parse(apiUrl));
+    final apiUrl = '${baseUrl}/Post';
+    final response = await http.get(Uri.parse(apiUrl));
 
-  if (response.statusCode == 200) {
-    final List<dynamic> responseData = jsonDecode(response.body);
-    List<Post> loadedPosts = [];
-    for (var postJson in responseData) {
-      Post post = Post.fromJson(postJson);
-      await post.fetchImageUrl();  // Fetch the image URL for each post
-      await post.fetchFileUrl();
-      loadedPosts.add(post);
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = jsonDecode(response.body);
+      List<Post> loadedPosts = [];
+      for (var postJson in responseData) {
+        Post post = Post.fromJson(postJson);
+        await post.fetchImageUrls(); // Fetch the image URL for each post
+        await post.fetchFileUrls();
+        loadedPosts.add(post);
+      }
+      setState(() {
+        posts = loadedPosts;
+      });
+    } else {
+      throw Exception('Failed to load posts');
     }
-    setState(() {
-      posts = loadedPosts;
-    });
-  } else {
-    throw Exception('Failed to load posts');
   }
-}
 
-Future<void> _openPDF(String url) async {
+  Future<void> _openPDF(String url) async {
     try {
       var response = await http.get(Uri.parse(url));
       var dir = await getApplicationDocumentsDirectory();
@@ -69,9 +68,6 @@ Future<void> _openPDF(String url) async {
       print("Error opening PDF: $e");
     }
   }
-
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -92,15 +88,6 @@ Future<void> _openPDF(String url) async {
           const SizedBox(
             height: 40,
           ),
-          /*const Text(
-            'CareerFusion',
-            style: TextStyle(
-              fontSize: 30,
-              color: Color.fromARGB(255, 108, 99, 255),
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Montserrat-VariableFont_wght',
-            ),
-          ),*/
           Container(
             height: 100,
             child: ListView(
@@ -110,282 +97,239 @@ Future<void> _openPDF(String url) async {
                   iconColor: Colors.white,
                   fontColor: Colors.white,
                   color: mainAppColor,
-                    title: 'My profile',
-                    iconData: Icons.person,
-                    onTap: () {
-                      //Navigator.pushNamed(context, 'CandidateProfilePage');
-                      Navigator.pushNamed(context, 'UserProfilePage');
-                    },
-                  ),
-                  CustomMenuCard(
-                    iconColor: mainAppColor,
-                    fontColor: mainAppColor,
-                    color: secondColor,
-                    title: 'Notifications',
-                    iconData: Icons.notifications,
-                    onTap: () {
-                      Navigator.pushNamed(context, 'NotificationsPage');
-                    },
-                  ),
-                  CustomMenuCard(
-                    iconColor: Colors.white,
-                    fontColor: Colors.white,
-                    color: mainAppColor,
-                    title: 'Job search',
-                    iconData: Icons.search,
-                    onTap: () {
-                      Navigator.pushNamed(context, 'JobSearchPage');
-                    },
-                  ),
-                  CustomMenuCard(
-                    iconColor: mainAppColor,
-                    fontColor: mainAppColor,
-                    color: secondColor,
-                    title: 'Recommended',
-                    iconData: Icons.recommend,
-                    onTap: () {
-                      Navigator.pushNamed(context, 'RecommendedJobsPage');
-                    },
-                  ),
-                  CustomMenuCard(
-                    iconColor: Colors.white,
-                    fontColor: Colors.white,
-                    color: mainAppColor,
-                    title: 'My Jobs',
-                    iconData: Icons.work_history,
-                    onTap: () {
-                      Navigator.pushNamed(context, 'AppliedJobsPage');
-                    },
-                  ),
-                  CustomMenuCard(
-                    iconColor: mainAppColor,
-                    fontColor: mainAppColor,
-                    color: secondColor,
-                    title: 'Open Positions',
-                    iconData: Icons.announcement,
-                    onTap: () {
-                      Navigator.pushNamed(context, 'CandidateOpenPositionsListPage');
-                    },
-                  ),
-                  CustomMenuCard(
-                    iconColor: Colors.white,
-                    fontColor: Colors.white,
-                    color: mainAppColor,
-                    title: 'My Roadmap',
-                    iconData: Icons.timeline,
-                    onTap: () {
-                      Navigator.pushNamed(context, 'CandidateRoadmapPage');
-                    },
-                  ),
-              ],
-            ),
-          ),
-          /*Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              padding: const EdgeInsets.all(16.0),
-              crossAxisSpacing: 10.0,
-              mainAxisSpacing: 10.0,
-              children: <Widget>[
-                MenuCard(
                   title: 'My profile',
                   iconData: Icons.person,
                   onTap: () {
-                    //Navigator.pushNamed(context, 'CandidateProfilePage');
                     Navigator.pushNamed(context, 'UserProfilePage');
                   },
                 ),
-                MenuCard(
+                CustomMenuCard(
+                  iconColor: mainAppColor,
+                  fontColor: mainAppColor,
+                  color: secondColor,
                   title: 'Notifications',
                   iconData: Icons.notifications,
                   onTap: () {
                     Navigator.pushNamed(context, 'NotificationsPage');
                   },
                 ),
-                MenuCard(
+                CustomMenuCard(
+                  iconColor: Colors.white,
+                  fontColor: Colors.white,
+                  color: mainAppColor,
                   title: 'Job search',
                   iconData: Icons.search,
                   onTap: () {
                     Navigator.pushNamed(context, 'JobSearchPage');
                   },
                 ),
-                MenuCard(
-                  title: 'Dashboard',
-                  iconData: Icons.dashboard,
+                CustomMenuCard(
+                  iconColor: mainAppColor,
+                  fontColor: mainAppColor,
+                  color: secondColor,
+                  title: 'Recommended',
+                  iconData: Icons.recommend,
                   onTap: () {
-                    Navigator.pushNamed(context, 'DashboardPage');
+                    Navigator.pushNamed(context, 'RecommendedJobsPage');
                   },
                 ),
-                MenuCard(
+                CustomMenuCard(
+                  iconColor: Colors.white,
+                  fontColor: Colors.white,
+                  color: mainAppColor,
                   title: 'My Jobs',
                   iconData: Icons.work_history,
                   onTap: () {
                     Navigator.pushNamed(context, 'AppliedJobsPage');
                   },
                 ),
+                CustomMenuCard(
+                  iconColor: mainAppColor,
+                  fontColor: mainAppColor,
+                  color: secondColor,
+                  title: 'Open Positions',
+                  iconData: Icons.announcement,
+                  onTap: () {
+                    Navigator.pushNamed(
+                        context, 'CandidateOpenPositionsListPage');
+                  },
+                ),
+                CustomMenuCard(
+                  iconColor: Colors.white,
+                  fontColor: Colors.white,
+                  color: mainAppColor,
+                  title: 'My Roadmap',
+                  iconData: Icons.timeline,
+                  onTap: () {
+                    Navigator.pushNamed(context, 'CandidateRoadmapPage');
+                  },
+                ),
               ],
             ),
-          ),*/
-          /*Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                width: 200, // Specify the desired width
-                height: 150, // Specify the desired height
-                child: Image.asset(
-                    'assets/images/undraw_adventure_map_hnin_new.png'),
-              ),
-            ],
-          ),*/
-          const SizedBox(
-            height: 30,
           ),
+          const SizedBox(height: 30),
           Expanded(
-          child: ListView.builder(
-            itemCount: posts.length,
-            itemBuilder: (context, index) {
-              return Card(
-                shadowColor: Colors.grey[500],
-        color: Color.fromARGB(255, 235, 233, 255),
-                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: Padding(
-                  padding: EdgeInsets.all(15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                         CircleAvatar(
-  radius: 30,
-  backgroundImage: posts[index] != null && posts[index].userProfilePicturePath.isNotEmpty
-    ? NetworkImage('http://10.0.2.2:5266${posts[index].userProfilePicturePath}')
-    : AssetImage(
-        'assets/images/111.avif', // Default company icon
-        //fit: BoxFit.cover,
-      ) as ImageProvider,
-),
-
-                          SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                posts[index] != null ? posts[index].userFullName : 'Unknown User',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+            child: ListView.builder(
+              itemCount: posts.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  shadowColor: Colors.grey[500],
+                  color: Color.fromARGB(255, 235, 233, 255),
+                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  child: Padding(
+                    padding: EdgeInsets.all(15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundImage: posts[index]
+                                              .userProfilePicturePath !=
+                                          null &&
+                                      posts[index]
+                                          .userProfilePicturePath!
+                                          .isNotEmpty
+                                  ? NetworkImage(
+                                      'http://10.0.2.2:5266${posts[index].userProfilePicturePath}')
+                                  : AssetImage('assets/images/111.avif')
+                                      as ImageProvider,
+                            ),
+                            SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  posts[index].userFullName ?? 'Unknown User',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                posts[index] != null ? posts[index].userEmail : 'Unknown Email',
-                                style: TextStyle(
-                                  color: Colors.grey,
+                                Text(
+                                  posts[index].userEmail ?? 'Unknown Email',
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                  ),
                                 ),
-                              ),
-                              
-                            ],
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Text(
+                          posts[index].content ?? '',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        if (posts[index].fileId != null) ...[
+                          SizedBox(
+                            height: 10,
                           ),
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Card(
+                                child: ListTile(
+                                  onTap: () {
+                                    _openPDF('${posts[index].fileId}');
+                                  },
+                                  title: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Icons.picture_as_pdf,
+                                        color: mainAppColor,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Flexible(
+                                        // Add this to prevent overflow
+                                        child: Text(
+                                          posts[index].fileUrls![
+                                              0], // Displaying the first URL
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontFamily: appFont,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          overflow: TextOverflow
+                                              .ellipsis, // Handle overflow
+                                          maxLines: 1, // Limit to one line
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
                         ],
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        posts[index].content,
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      if(posts[index].file != null) ...[
-                        SizedBox(height: 10,),
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Card(
-  child: ListTile(
-    onTap: (){
-       _openPDF('${posts[index].file}');
-    },
-    title: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Icon(
-          Icons.picture_as_pdf,
-          color: mainAppColor,
-        ),
-        SizedBox(width: 10),
-        Flexible( // Add this to prevent overflow
-          child: Text(
-            posts[index].file!,
-            style: TextStyle(
-              fontSize: 14,
-              fontFamily: appFont,
-              fontWeight: FontWeight.bold,
-            ),
-            overflow: TextOverflow.ellipsis, // Add this to handle overflow
-            maxLines: 1, // Limit to one line
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-
-                          ),
-                        )
-                      ],
-                      if (posts[index].imageUrl != null) ...[
+                        if (posts[index].imageUrls != null) ...[
                           SizedBox(height: 10),
                           Center(
                             child: SizedBox(
                               width: 300, // Specify the desired width
                               height: 300, // Specify the desired height
-                              child: Image.network(
-                                posts[index].imageUrl!,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Text('Image not available');
-                                },
-                                fit: BoxFit.cover, // Ensure the image covers the box
-                              ),
+                              child: posts[index].imageUrls != null &&
+                                      posts[index].imageUrls!.isNotEmpty
+                                  ? Image.network(
+                                      posts[index].imageUrls![
+                                          0], // Assuming you want to display the first image in the list
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Text('Image not available');
+                                      },
+                                      fit: BoxFit
+                                          .cover, // Ensure the image covers the box
+                                    )
+                                  : Container(
+                                      color: Colors.grey[
+                                          300], // Placeholder for no image scenario
+                                      child: Center(
+                                        child: Text('No Image'),
+                                      ),
+                                    ),
                             ),
                           ),
                         ],
-                      SizedBox(height: 10),
-                      Center(
-                        child: Text(
-                                  posts[index].createdAt != null ? posts[index].createdAt : 'Unknown',
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                    fontFamily: appFont,
-                                    fontWeight: FontWeight.bold
-                                  ),
+                        SizedBox(height: 10),
+                        Center(
+                          child: Text(
+                            posts[index].createdAt ?? 'Unknown',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                              fontFamily: appFont,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        CustomButton(
+                          text: 'Apply',
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ApplyToJobPostPage(
+                                  postId: posts[index].postId!,
                                 ),
-                      ),
-                              SizedBox(height: 10,),
-                      /*ElevatedButton(
-                        onPressed: () {
-                          // Handle apply button tap
-                        },
-                        child: Text('Apply'),
-                      ),*/
-                      CustomButton(text: 'Apply',
-                      onPressed: (){
-                        Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ApplyToJobPostPage(postId: posts[index].postId),
-    ),
-  );
-  print(posts[index].postId);
-                      },)
-                    ],
+                              ),
+                            );
+                            print(posts[index].postId);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 }
 
 class MenuCard extends StatelessWidget {
@@ -425,8 +369,3 @@ class MenuCard extends StatelessWidget {
     );
   }
 }
-
-
-
-
-

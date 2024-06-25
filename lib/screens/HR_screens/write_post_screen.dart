@@ -42,14 +42,16 @@ class _WritePostPageState extends State<WritePostPage> {
 
     final String fileUploadUrl = '${baseUrl}/FileUpload/$postId/upload-file';
     var request = http.MultipartRequest('POST', Uri.parse(fileUploadUrl));
-    request.files.add(await http.MultipartFile.fromPath('file', _selectedFile!.path));
+    request.files
+        .add(await http.MultipartFile.fromPath('file', _selectedFile!.path));
     var response = await request.send();
 
     if (response.statusCode == 200) {
       var responseData = await http.Response.fromStream(response);
       var responseJson = jsonDecode(responseData.body);
       setState(() {
-        _uploadedFilePath = responseJson['file']; // Assuming the server returns the file path
+        _uploadedFilePath =
+            responseJson['file']; // Assuming the server returns the file path
       });
       print('File uploaded successfully');
     } else {
@@ -60,9 +62,11 @@ class _WritePostPageState extends State<WritePostPage> {
   Future<void> _uploadImage(String postId) async {
     if (_selectedImage == null) return;
 
-    final String imageUploadUrl = '${baseUrl}/PictureUpload/$postId/upload-picture';
+    final String imageUploadUrl =
+        '${baseUrl}/PictureUpload/$postId/upload-picture';
     var request = http.MultipartRequest('POST', Uri.parse(imageUploadUrl));
-    request.files.add(await http.MultipartFile.fromPath('picture', _selectedImage!.path));
+    request.files.add(
+        await http.MultipartFile.fromPath('picture', _selectedImage!.path));
     var response = await request.send();
     print('Image upload response status code: ${response.statusCode}');
     if (response.statusCode == 200) {
@@ -70,7 +74,8 @@ class _WritePostPageState extends State<WritePostPage> {
       try {
         var responseJson = jsonDecode(responseData.body);
         setState(() {
-          _uploadedImagePath = responseJson['picture']; // Assuming the server returns the image path
+          _uploadedImagePath = responseJson[
+              'picture']; // Assuming the server returns the image path
         });
         print('Image uploaded successfully');
       } catch (e) {
@@ -141,7 +146,10 @@ class _WritePostPageState extends State<WritePostPage> {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ListTile(
-                leading: Icon(Icons.photo_camera),
+                leading: Icon(
+                  Icons.photo_camera,
+                  color: mainAppColor,
+                ),
                 title: Text('Camera'),
                 onTap: () {
                   Navigator.pop(context);
@@ -149,7 +157,10 @@ class _WritePostPageState extends State<WritePostPage> {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.photo_library),
+                leading: Icon(
+                  Icons.photo_library,
+                  color: mainAppColor,
+                ),
                 title: Text('Gallery'),
                 onTap: () {
                   Navigator.pop(context);
@@ -180,7 +191,9 @@ class _WritePostPageState extends State<WritePostPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: <Widget>[
-            SizedBox(height: 100,),
+            SizedBox(
+              height: 100,
+            ),
             TextField(
               controller: _postController,
               maxLines: 10,
@@ -195,17 +208,26 @@ class _WritePostPageState extends State<WritePostPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.photo),
+                  icon: Icon(
+                    Icons.photo,
+                    color: mainAppColor,
+                  ),
                   onPressed: _showImageSourceActionSheet,
                 ),
                 IconButton(
-                  icon: Icon(Icons.attach_file),
+                  icon: Icon(
+                    Icons.attach_file,
+                    color: mainAppColor,
+                  ),
                   onPressed: _pickFile,
                 ),
                 Spacer(),
                 FloatingActionButton(
                   onPressed: _sharePost,
-                  child: Icon(Icons.send),
+                  child: Icon(
+                    Icons.send,
+                    color: Colors.white,
+                  ),
                   backgroundColor: mainAppColor,
                   shape: CircleBorder(),
                 )

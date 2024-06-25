@@ -1,10 +1,12 @@
-
-
 import 'package:career_fusion/constants.dart';
+import 'package:career_fusion/screens/HR_screens/post_cv_screening.dart';
+import 'package:career_fusion/screens/HR_screens/post_cv_screening_result.dart';
+import 'package:career_fusion/screens/HR_screens/post_telephone_interview_form.dart';
 import 'package:flutter/material.dart';
 
 class HRPostRecruitmentPage extends StatefulWidget {
-  const HRPostRecruitmentPage({super.key});
+  final int postId;
+  const HRPostRecruitmentPage({super.key, required this.postId});
 
   @override
   State<HRPostRecruitmentPage> createState() => _HRPostRecruitmentPageState();
@@ -19,7 +21,7 @@ class _HRPostRecruitmentPageState extends State<HRPostRecruitmentPage> {
           'Post Recruitment',
           style: TextStyle(
               //fontFamily: appFont,
-               color: Colors.white),
+              color: Colors.white),
         ),
         backgroundColor: mainAppColor,
       ),
@@ -50,7 +52,14 @@ class _HRPostRecruitmentPageState extends State<HRPostRecruitmentPage> {
                 ),
                 trailing: Icon(Icons.navigate_next),
                 onTap: () {
-                  Navigator.pushNamed(context, 'PostCVScreeningPage');
+                  //Navigator.pushNamed(context, 'PostCVScreeningPage');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          PostCVScreeningPage(postId: widget.postId),
+                    ),
+                  );
                 },
               ),
               ListTile(
@@ -64,7 +73,14 @@ class _HRPostRecruitmentPageState extends State<HRPostRecruitmentPage> {
                 ),
                 trailing: Icon(Icons.navigate_next),
                 onTap: () {
-                  Navigator.pushNamed(context, 'PostCVScreeningResult');
+                  //Navigator.pushNamed(context, 'PostCVScreeningResult');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          PostCVScreeningResult(postId: widget.postId),
+                    ),
+                  );
                 },
               ),
             ],
@@ -94,7 +110,14 @@ class _HRPostRecruitmentPageState extends State<HRPostRecruitmentPage> {
                 ),
                 trailing: Icon(Icons.navigate_next),
                 onTap: () {
-                  Navigator.pushNamed(context, 'PostTelephoneInterviewForm');
+                  //Navigator.pushNamed(context, 'PostTelephoneInterviewForm');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          PostTelephoneInterviewForm(postId: widget.postId),
+                    ),
+                  );
                 },
               ),
               ListTile(
@@ -108,7 +131,8 @@ class _HRPostRecruitmentPageState extends State<HRPostRecruitmentPage> {
                 ),
                 trailing: Icon(Icons.navigate_next),
                 onTap: () {
-                  Navigator.pushNamed(context, 'PostTelephoneInterviewSelectionProcessPage');
+                  Navigator.pushNamed(
+                      context, 'PostTelephoneInterviewSelectionProcessPage');
                 },
               ),
               ListTile(
@@ -122,7 +146,8 @@ class _HRPostRecruitmentPageState extends State<HRPostRecruitmentPage> {
                 ),
                 trailing: Icon(Icons.navigate_next),
                 onTap: () {
-                  Navigator.pushNamed(context, 'PostTelephoneInterviewResultPage');
+                  Navigator.pushNamed(
+                      context, 'PostTelephoneInterviewResultPage');
                 },
               ),
             ],
@@ -166,7 +191,8 @@ class _HRPostRecruitmentPageState extends State<HRPostRecruitmentPage> {
                 ),
                 trailing: Icon(Icons.navigate_next),
                 onTap: () {
-                  Navigator.pushNamed(context, 'PostTechnicalInterviewSelectionProcessPage');
+                  Navigator.pushNamed(
+                      context, 'PostTechnicalInterviewSelectionProcessPage');
                 },
               ),
               ListTile(

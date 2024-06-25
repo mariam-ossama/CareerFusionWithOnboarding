@@ -1,12 +1,16 @@
-
-import 'package:file_picker/file_picker.dart';
-import 'package:career_fusion/constants.dart';
-import 'package:career_fusion/widgets/custom_button.dart';
+import 'dart:convert';
+import 'dart:io';
 import 'package:career_fusion/widgets/custom_named_field.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:career_fusion/constants.dart';
+import 'package:career_fusion/widgets/custom_button.dart';
+import 'package:file_picker/file_picker.dart';
 
 class PostCVScreeningPage extends StatefulWidget {
-  const PostCVScreeningPage({super.key});
+  final int postId;
+
+  const PostCVScreeningPage({Key? key, required this.postId}) : super(key: key);
 
   @override
   State<PostCVScreeningPage> createState() => _PostCVScreeningPageState();
@@ -14,9 +18,12 @@ class PostCVScreeningPage extends StatefulWidget {
 
 class _PostCVScreeningPageState extends State<PostCVScreeningPage> {
   List<String>? selectedCVs; // List to store paths of selected CVs
-  final TextEditingController minQualificationsController = TextEditingController();
-  final TextEditingController prefQualificationsController = TextEditingController();
-  List<TextEditingController> skillControllers = []; // List to manage skill controllers
+  final TextEditingController minQualificationsController =
+      TextEditingController();
+  final TextEditingController prefQualificationsController =
+      TextEditingController();
+  List<TextEditingController> skillControllers =
+      []; // List to manage skill controllers
 
   String? selectedPosition; // Make this nullable
   final List<String> positions = ['Position 1', 'Position 2', 'Position 3'];
@@ -25,12 +32,6 @@ class _PostCVScreeningPageState extends State<PostCVScreeningPage> {
     'Position 2': ['CV3.pdf', 'CV4.pdf'], // Example PDFs for Position 2
     'Position 3': ['CV5.pdf', 'CV6.pdf'], // Example PDFs for Position 3
   };
-
-  void screenCVs() {
-    // Logic to screen CVs based on qualifications
-    // This would involve backend logic to process CVs
-    print('Screening CVs with selected files: $selectedCVs');
-  }
 
   Future<void> pickCVs() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -76,6 +77,139 @@ class _PostCVScreeningPageState extends State<PostCVScreeningPage> {
     );
   }
 
+  Widget buildScreenedCvCard(String fileName) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 5.0),
+      child: ListTile(
+        leading: Icon(Icons.check_circle, color: Colors.green),
+        title: Text(
+          fileName,
+          style: TextStyle(fontSize: 16, color: Colors.black),
+        ),
+      ),
+    );
+  }
+
+  Future<void> uploadCVs() async {
+    if (selectedCVs == null || selectedCVs!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select at least one CV'),
+        ),
+      );
+      return;
+    }
+
+    try {
+      // Create multipart request for uploading CV files
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('https://flask-deployment-hev4.onrender.com/upload-cv'),
+      );
+
+      // Add files to the request
+      for (var cvPath in selectedCVs!) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'file',
+            cvPath,
+          ),
+        );
+      }
+
+      // Send request
+      var response = await request.send();
+
+      // Check response status
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('CVs uploaded successfully'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to upload CVs'),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error uploading CVs: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error uploading CVs'),
+        ),
+      );
+    }
+  }
+
+  Future<void> screenCVs() async {
+    if (selectedCVs == null || selectedCVs!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select at least one CV'),
+        ),
+      );
+      return;
+    }
+
+    List<String> skills = skillControllers
+        .map((controller) => controller.text.trim())
+        .where((skill) => skill.isNotEmpty)
+        .toList();
+
+    // Prepare the JSON body for the request
+    var requestBody = jsonEncode({
+      "skills": skills,
+    });
+
+    try {
+      var response = await http.post(
+        Uri.parse('https://flask-deployment-hev4.onrender.com/match-cvs'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: requestBody,
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('CV screening completed successfully'),
+          ),
+        );
+
+        // Parse the response JSON array
+        List<dynamic> screenedCvs = jsonDecode(response.body);
+
+        // Update the UI with screened CV cards
+        setState(() {
+          screenedCvs.forEach((cv) {
+            String fileName = cv['file_name'];
+            // Add the file name to the UI
+            _screenedCvCards.add(buildScreenedCvCard(fileName));
+          });
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to screen CVs'),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error screening CVs: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error screening CVs'),
+        ),
+      );
+    }
+  }
+
+  List<Widget> _screenedCvCards = []; // List to store screened CV cards
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,161 +223,171 @@ class _PostCVScreeningPageState extends State<PostCVScreeningPage> {
         backgroundColor: mainAppColor,
       ),
       body: ListView(
+        padding: EdgeInsets.all(8.0),
         children: [
-          SizedBox(height: 5,),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: 370,
-              decoration: ShapeDecoration(
-                color: secondColor,
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                      width: 1.0, style: BorderStyle.solid, color: Colors.white),
-                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                ),
-              ),
-              padding: EdgeInsets.all(8.0),
-              child: Center(
-                child: DropdownButton<String>(
-                  iconEnabledColor: Colors.white,
-                  isExpanded: true,
-                  value: selectedPosition,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedPosition = newValue;
-                    });
-                  },
-                  items: positions.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Center(
-                        child: Text(
-                          value,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: mainAppColor
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  hint: Center(
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: secondColor,
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: selectedPosition,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedPosition = newValue;
+                });
+              },
+              items: positions.map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Center(
                     child: Text(
-                      'Choose Position',
+                      value,
                       style: TextStyle(
-                        //fontFamily: appFont,
+                        fontWeight: FontWeight.bold,
                         fontSize: 20,
                         color: mainAppColor,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
+                  ),
+                );
+              }).toList(),
+              hint: Center(
+                child: Text(
+                  'Choose Position',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: mainAppColor,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
+          SizedBox(height: 10),
+          CustomButton(
+            text: 'Select CVs',
+            onPressed: pickCVs,
+          ),
+          if (selectedCVs != null && selectedCVs!.isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 10),
+                Text(
+                  'Selected CVs:',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 5),
+                ...selectedCVs!.map((cvPath) => buildCVCard(cvPath)).toList(),
+                SizedBox(height: 10),
                 CustomButton(
                   text: 'Upload CVs',
-                  onPressed: pickCVs,
-                ),
-                if (selectedCVs != null && selectedCVs!.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: selectedCVs!.map((cv) => buildCVCard(cv)).toList(),
-                    ),
-                  ),
-                
-          SizedBox(
-            height: 5,
-          ),
-                SizedBox(height: 30),
-                /*CustomNamedField(text: 'Qualifications'),
-                SizedBox(height: 5),
-                TextFormField(
-                  maxLines: 4,
-                  controller: minQualificationsController,
-                  decoration: InputDecoration(
-                    hintText: 'Write min. qualifications...',
-                    hintStyle: const TextStyle(
-                      color: Colors.grey,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter minimum qualifications';
-                    }
-                    return null;
-                  },
-                ),*/
-                SizedBox(height: 10),
-                CustomNamedField(text: 'Skills'),
-                SizedBox(height: 15),
-                ...List.generate(skillControllers.length, (index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: skillControllers[index],
-                            decoration: InputDecoration(
-                              hintText: 'Enter skill...',
-                              hintStyle: const TextStyle(
-                                color: Colors.grey,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: mainAppColor),
-                          onPressed: () => removeSkillField(index),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-                SizedBox(height: 5),
-                TextButton(
-                  onPressed: addSkillField,
-                  child: Text(
-                    'Add More',
-                    style: TextStyle(
-                      color: mainAppColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 15),
-                CustomButton(
-                  text: 'Screen CVs',
-                  onPressed: () {
-                    if (selectedCVs != null && selectedCVs!.isNotEmpty) {
-                      screenCVs();
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Please select at least one CV')),
-                      );
-                    }
-                  },
+                  onPressed: uploadCVs,
                 ),
               ],
             ),
+          SizedBox(height: 20),
+
+          /*CustomNamedField(text: 'Qualifications'),
+          SizedBox(height: 5),
+          TextFormField(
+            maxLines: 4,
+            controller: minQualificationsController,
+            decoration: InputDecoration(
+              hintText: 'Write min. qualifications...',
+              hintStyle: const TextStyle(
+                color: Colors.grey,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter minimum qualifications';
+              }
+              return null;
+            },
+          ),*/
+          SizedBox(height: 10),
+          CustomNamedField(text: 'Skills'),
+          SizedBox(height: 15),
+          ...List.generate(skillControllers.length, (index) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: skillControllers[index],
+                      decoration: InputDecoration(
+                        hintText: 'Enter skill...',
+                        hintStyle: const TextStyle(
+                          color: Colors.grey,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete, color: mainAppColor),
+                    onPressed: () => removeSkillField(index),
+                  ),
+                ],
+              ),
+            );
+          }),
+          SizedBox(height: 5),
+          TextButton(
+            onPressed: addSkillField,
+            child: Text(
+              'Add More',
+              style: TextStyle(
+                color: mainAppColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
+          SizedBox(height: 20),
+          CustomButton(
+            text: 'Screen CVs',
+            onPressed: () {
+              if (selectedCVs != null && selectedCVs!.isNotEmpty) {
+                screenCVs();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Please select at least one CV'),
+                  ),
+                );
+              }
+            },
+          ),
+          SizedBox(height: 20),
+          if (_screenedCvCards.isNotEmpty)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Screened CVs:',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 10),
+                ..._screenedCvCards,
+              ],
+            ),
         ],
       ),
     );

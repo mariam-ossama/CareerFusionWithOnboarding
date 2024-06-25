@@ -1,15 +1,17 @@
 import 'dart:convert';
-import 'package:career_fusion/screens/HR_screens/HR_post_recruitment.dart';
-import 'package:career_fusion/widgets/custom_button.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:path_provider/path_provider.dart';
 import 'package:career_fusion/constants.dart';
+import 'package:career_fusion/screens/HR_screens/HR_post_recruitment.dart';
+import 'package:career_fusion/widgets/custom_button.dart';
 
 class HRPostCandidatesPage extends StatefulWidget {
   final int postId;
 
-  const HRPostCandidatesPage({Key? key, required this.postId}) : super(key: key);
+  const HRPostCandidatesPage({Key? key, required this.postId})
+      : super(key: key);
 
   @override
   State<HRPostCandidatesPage> createState() => _HRPostCandidatesPageState();
@@ -38,6 +40,34 @@ class _HRPostCandidatesPageState extends State<HRPostCandidatesPage> {
     }
   }
 
+  Future<void> downloadCV(String cvPath) async {
+    try {
+      var response = await http.get(Uri.parse(cvPath));
+      var dir = await getApplicationDocumentsDirectory();
+      File file = File("${dir.path}/${cvPath.split('/').last}");
+      print('file location:${file}');
+
+      print(response.statusCode);
+      print(response.body);
+
+      await file.writeAsBytes(response.bodyBytes, flush: true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('CV downloaded successfully'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      print("Error downloading CV: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to download CV'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +78,7 @@ class _HRPostCandidatesPageState extends State<HRPostCandidatesPage> {
         ),
         backgroundColor: mainAppColor,
       ),
-      body: cvPaths != null
+      body: cvPaths.isNotEmpty
           ? Stack(
               children: [
                 ListView.builder(
@@ -61,13 +91,13 @@ class _HRPostCandidatesPageState extends State<HRPostCandidatesPage> {
                       margin: EdgeInsets.all(8.0),
                       child: ListTile(
                         leading: Icon(
-                          Icons.picture_as_pdf,
+                          Icons.description,
                           color: mainAppColor,
                         ),
-                        title: Text(cvPath),
+                        title: Text(
+                            cvPath.split('/').last), // Display only filename
                         onTap: () {
-                          // Handle tap to view or download CV
-                          // You can implement this based on your requirements
+                          downloadCV(cvPath); // Call download function on tap
                         },
                       ),
                     );
@@ -81,22 +111,25 @@ class _HRPostCandidatesPageState extends State<HRPostCandidatesPage> {
                     child: Column(
                       children: [
                         CustomButton(
-                          text:'Download all CVs',
+                          text: 'Download all CVs',
                           onPressed: () {
-                            // Handle second button press
+                            // Handle download all CVs
+                            for (var cvPath in cvPaths) {
+                              downloadCV(cvPath);
+                            }
                           },
                         ),
                         SizedBox(height: 10),
                         CustomButton(
-                          text:'Go to Interviews',
+                          text: 'Go to Interviews',
                           onPressed: () {
-                             Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            HRPostRecruitmentPage(),
-                      ),
-                    );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HRPostRecruitmentPage(
+                                    postId: widget.postId),
+                              ),
+                            );
                           },
                         ),
                       ],

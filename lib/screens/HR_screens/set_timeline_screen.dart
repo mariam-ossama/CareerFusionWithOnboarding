@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
-
 class SetTimelinePage extends StatefulWidget {
   const SetTimelinePage({Key? key}) : super(key: key);
 
@@ -27,15 +26,16 @@ class _SetTimelinePageState extends State<SetTimelinePage> {
   DateTime? startDate;
   DateTime? endDate;
   @override
-void initState() {
+  void initState() {
     super.initState();
     fetchTimelineData();
   }
 
   Widget build(BuildContext context) {
-     void handleCheckboxChange(bool? newValue, int index) async {
+    void handleCheckboxChange(bool? newValue, int index) async {
       setState(() {
-        timelineItems[index].isChecked = newValue ?? false; // Update the isChecked property
+        timelineItems[index].isChecked =
+            newValue ?? false; // Update the isChecked property
       });
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -44,7 +44,8 @@ void initState() {
 
       try {
         final response = await http.put(
-          Uri.parse('${baseUrl}/HiringTimeline/UpdateTimelineStage/$userId/$stageId'),
+          Uri.parse(
+              '${baseUrl}/HiringTimeline/UpdateTimelineStage/$userId/$stageId'),
           body: jsonEncode({
             'stageId': stageId,
             'status': newValue ?? false, // Update the status field
@@ -63,7 +64,6 @@ void initState() {
         print('Error updating status: $e');
       }
     }
-
 
     return Scaffold(
       appBar: AppBar(
@@ -117,133 +117,145 @@ void initState() {
                 // Handle edit
                 // You can navigate to another page for editing or show another dialog, based on your requirements
                 showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      TextEditingController descriptionController =
-          TextEditingController(text: item.description);
+                  context: context,
+                  builder: (BuildContext context) {
+                    TextEditingController descriptionController =
+                        TextEditingController(text: item.description);
 
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Text(
-              'Enter Details',
-              style: TextStyle(//fontFamily: 'Montserrat-VariableFont_wght'
-              ),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: descriptionController,
-                  decoration: InputDecoration(labelText: 'New Description'),
-                ),
-                ListTile(
-                  leading: Icon(Icons.calendar_today),
-                  title: Text('Start Date: ${startDate?.toString() ?? 'Select Start Date'}'),
-                  onTap: () async {
-                    final DateTime? pickedStartDate =
-                        await showDatePicker(
-                      context: context,
-                      initialDate: startDate ?? DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedStartDate != null) {
-                      setState(() {
-                        startDate = pickedStartDate;
-                      });
-                    }
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.calendar_today),
-                  title: Text('End Date: ${endDate?.toString() ?? 'Select End Date'}'),
-                  onTap: () async {
-                    final DateTime? pickedEndDate = await showDatePicker(
-                      context: context,
-                      initialDate: endDate ?? DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedEndDate != null) {
-                      setState(() {
-                        endDate = pickedEndDate;
-                      });
-                    }
-                  },
-                ),
-              ],
-            ),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  'Cancel',
-                  style: TextStyle(//fontFamily: 'Montserrat-VariableFont_wght'
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  String newDescription = descriptionController.text;
-                  String newStartDate = startDate != null
-                      ? DateFormat("yyyy-MM-ddTHH:mm:ss.SSS")
-                          .format(startDate!)
-                      : "";
-                  String newEndDate = endDate != null
-                      ? DateFormat("yyyy-MM-ddTHH:mm:ss.SSS")
-                          .format(endDate!)
-                      : "";
-                  SharedPreferences prefs = await SharedPreferences.getInstance();
-                  String? userId = prefs.getString('userId');
+                    return StatefulBuilder(
+                      builder: (context, setState) {
+                        return AlertDialog(
+                          title: Text(
+                            'Enter Details',
+                            style: TextStyle(
+                                //fontFamily: 'Montserrat-VariableFont_wght'
+                                ),
+                          ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextField(
+                                controller: descriptionController,
+                                decoration: InputDecoration(
+                                    labelText: 'New Description'),
+                              ),
+                              ListTile(
+                                leading: Icon(Icons.calendar_today),
+                                title: Text(
+                                    'Start Date: ${startDate?.toString() ?? 'Select Start Date'}'),
+                                onTap: () async {
+                                  final DateTime? pickedStartDate =
+                                      await showDatePicker(
+                                    context: context,
+                                    initialDate: startDate ?? DateTime.now(),
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  if (pickedStartDate != null) {
+                                    setState(() {
+                                      startDate = pickedStartDate;
+                                    });
+                                  }
+                                },
+                              ),
+                              ListTile(
+                                leading: Icon(Icons.calendar_today),
+                                title: Text(
+                                    'End Date: ${endDate?.toString() ?? 'Select End Date'}'),
+                                onTap: () async {
+                                  final DateTime? pickedEndDate =
+                                      await showDatePicker(
+                                    context: context,
+                                    initialDate: endDate ?? DateTime.now(),
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  if (pickedEndDate != null) {
+                                    setState(() {
+                                      endDate = pickedEndDate;
+                                    });
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                    //fontFamily: 'Montserrat-VariableFont_wght'
+                                    ),
+                              ),
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                String newDescription =
+                                    descriptionController.text;
+                                String newStartDate = startDate != null
+                                    ? DateFormat("yyyy-MM-ddTHH:mm:ss.SSS")
+                                        .format(startDate!)
+                                    : "";
+                                String newEndDate = endDate != null
+                                    ? DateFormat("yyyy-MM-ddTHH:mm:ss.SSS")
+                                        .format(endDate!)
+                                    : "";
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                String? userId = prefs.getString('userId');
 
-                  try {
-                    if (item.stageId != null) {
-                      final response = await http.put(
-                        Uri.parse(
-                            '${baseUrl}/HiringTimeline/UpdateTimelineStage/${userId}/${item.stageId}'),
-                        body: jsonEncode({
-                          'stageId': item.stageId, // Provide stageId
-                          'description': newDescription,
-                          'startTime': newStartDate,
-                          'endTime': newEndDate,
-                          'updatedStage': 'someValue', // Provide updatedStage
-                        }),
-                        headers: <String, String>{
-                          'Content-Type':
-                              'application/json; charset=UTF-8',
-                        },
-                      );
-                      if (response.statusCode == 200) {
-                        print('Timeline item updated successfully');
-                        setState(() {
-                          timelineItems[index] = TimelineItem(
-                            stageId: item.stageId,
-                            description: newDescription,
-                            startDate: newStartDate,
-                            endDate: newEndDate,
-                          );
-                        });
-                        fetchTimelineData();
-                      } else {
-                        throw Exception(
-                            'Failed to update timeline item: ${response.body}');
-                      }
-                    } else {
-                      throw Exception('stageId is null');
-                    }
-                  } catch (e) {
-                    print('Error updating timeline item: $e');
-                  }
+                                try {
+                                  if (item.stageId != null) {
+                                    final response = await http.put(
+                                      Uri.parse(
+                                          '${baseUrl}/HiringTimeline/UpdateTimelineStage/${userId}/${item.stageId}'),
+                                      body: jsonEncode({
+                                        'stageId':
+                                            item.stageId, // Provide stageId
+                                        'description': newDescription,
+                                        'startTime': newStartDate,
+                                        'endTime': newEndDate,
+                                        'updatedStage':
+                                            'someValue', // Provide updatedStage
+                                      }),
+                                      headers: <String, String>{
+                                        'Content-Type':
+                                            'application/json; charset=UTF-8',
+                                      },
+                                    );
+                                    if (response.statusCode == 200) {
+                                      print(
+                                          'Timeline item updated successfully');
+                                      setState(() {
+                                        timelineItems[index] = TimelineItem(
+                                          stageId: item.stageId,
+                                          description: newDescription,
+                                          startDate: newStartDate,
+                                          endDate: newEndDate,
+                                        );
+                                      });
+                                      fetchTimelineData();
+                                    } else {
+                                      throw Exception(
+                                          'Failed to update timeline item: ${response.body}');
+                                    }
+                                  } else {
+                                    throw Exception('stageId is null');
+                                  }
+                                } catch (e) {
+                                  print('Error updating timeline item: $e');
+                                }
 
-                  Navigator.of(context).pop();
-                },
-                child: Text(
-                  'Save',
-                  style: TextStyle(//fontFamily: 'Montserrat-VariableFont_wght'
-                  ),
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                'Save',
+                                style: TextStyle(
+                                    //fontFamily: 'Montserrat-VariableFont_wght'
+                                    ),
                               ),
                             ),
                           ],
@@ -253,13 +265,13 @@ void initState() {
                   },
                 );
               },
-              onCheckboxChanged: (newValue) => handleCheckboxChange(newValue, index), // Update to pass index
+              onCheckboxChanged: (newValue) =>
+                  handleCheckboxChange(newValue, index), // Update to pass index
               item: item,
             );
           }).toList(),
         ),
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(
@@ -267,7 +279,8 @@ void initState() {
             builder: (BuildContext context) {
               TextEditingController descriptionController =
                   TextEditingController();
-              String startDateText = startDate?.toString() ?? 'Select Start Date';
+              String startDateText =
+                  startDate?.toString() ?? 'Select Start Date';
               String endDateText = endDate?.toString() ?? 'Select End Date';
 
               return StatefulBuilder(
@@ -275,8 +288,9 @@ void initState() {
                   return AlertDialog(
                     title: Text(
                       'Enter Details',
-                      style: TextStyle(//fontFamily: 'Montserrat-VariableFont_wght'
-                      ),
+                      style:
+                          TextStyle(//fontFamily: 'Montserrat-VariableFont_wght'
+                              ),
                     ),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -299,8 +313,7 @@ void initState() {
                             if (pickedStartDate != null) {
                               setState(() {
                                 startDate = pickedStartDate;
-                                startDateText =
-                                    pickedStartDate.toString();
+                                startDateText = pickedStartDate.toString();
                               });
                             }
                           },
@@ -309,7 +322,8 @@ void initState() {
                           leading: Icon(Icons.calendar_today),
                           title: Text('End Date: $endDateText'),
                           onTap: () async {
-                            final DateTime? pickedEndDate = await showDatePicker(
+                            final DateTime? pickedEndDate =
+                                await showDatePicker(
                               context: context,
                               initialDate: DateTime.now(),
                               firstDate: DateTime.now(),
@@ -332,22 +346,25 @@ void initState() {
                         },
                         child: Text(
                           'Cancel',
-                          style: TextStyle(//fontFamily: 'Montserrat-VariableFont_wght'
-                          ),
+                          style: TextStyle(
+                              //fontFamily: 'Montserrat-VariableFont_wght'
+                              ),
                         ),
                       ),
                       ElevatedButton(
                         onPressed: () {
                           String description = descriptionController.text;
                           String formattedStartDate = startDate != null
-                              ? DateFormat("yyyy-MM-ddTHH:mm:ss.SSS").format(startDate!)
+                              ? DateFormat("yyyy-MM-ddTHH:mm:ss.SSS")
+                                  .format(startDate!)
                               : "";
                           String formattedEndDate = endDate != null
-                              ? DateFormat("yyyy-MM-ddTHH:mm:ss.SSS").format(endDate!)
+                              ? DateFormat("yyyy-MM-ddTHH:mm:ss.SSS")
+                                  .format(endDate!)
                               : "";
 
-                          addTimelineItem(
-                              description, formattedStartDate, formattedEndDate);
+                          addTimelineItem(description, formattedStartDate,
+                              formattedEndDate);
 
                           print('Description: $description');
                           print('Start Date: ${startDate?.toString()}');
@@ -357,8 +374,9 @@ void initState() {
                         },
                         child: Text(
                           'Save',
-                          style: TextStyle(//fontFamily: 'Montserrat-VariableFont_wght'
-                          ),
+                          style: TextStyle(
+                              //fontFamily: 'Montserrat-VariableFont_wght'
+                              ),
                         ),
                       ),
                     ],
@@ -420,8 +438,7 @@ void initState() {
     return parsedDate.toUtc().toIso8601String(); // Convert to ISO 8601 format
   }
 
-
-Future<void> fetchTimelineData() async {
+  Future<void> fetchTimelineData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
 
@@ -429,7 +446,7 @@ Future<void> fetchTimelineData() async {
       final response = await http.get(
         Uri.parse('${baseUrl}/HiringTimeline/GetTimelinesForUser/$userId'),
       );
-       print(response.body);
+      print(response.body);
       if (response.statusCode == 200) {
         List<dynamic> responseData = jsonDecode(response.body);
         setState(() {
@@ -441,46 +458,38 @@ Future<void> fetchTimelineData() async {
         throw Exception('Failed to fetch timeline data: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Error fetching timeline data: $e');
+      throw 'Error fetching timeline data: $e';
     }
   }
 
   void deleteTimelineItem(int stageId) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? userId = prefs.getString('userId');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
 
-  try {
-    final response = await http.delete(
-      Uri.parse('${baseUrl}/HiringTimeline/DeleteTimelineStage/$userId/$stageId'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      print("Timeline item deleted successfully.");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Timeline item deleted successfully')),
+    try {
+      final response = await http.delete(
+        Uri.parse(
+            '${baseUrl}/HiringTimeline/DeleteTimelineStage/$userId/$stageId'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
       );
 
-      // Remove the deleted timeline item from the list
-      setState(() {
-        timelineItems.removeWhere((item) => item.stageId == stageId);
-      });
-    } else {
-      throw Exception('Failed to delete timeline item: ${response.body}');
+      if (response.statusCode == 200) {
+        print("Timeline item deleted successfully.");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Timeline item deleted successfully')),
+        );
+
+        // Remove the deleted timeline item from the list
+        setState(() {
+          timelineItems.removeWhere((item) => item.stageId == stageId);
+        });
+      } else {
+        throw Exception('Failed to delete timeline item: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error deleting timeline item: $e');
     }
-  } catch (e) {
-    throw Exception('Error deleting timeline item: $e');
   }
 }
-
-
-}
-
-
-
-
-
-
-

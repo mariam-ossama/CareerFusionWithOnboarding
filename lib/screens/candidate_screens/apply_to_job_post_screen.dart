@@ -5,6 +5,7 @@ import 'package:career_fusion/widgets/custom_button.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApplyToJobPostPage extends StatefulWidget {
   final int postId;
@@ -34,6 +35,8 @@ class _SubmitApplicationScreenState extends State<ApplyToJobPostPage> {
   }
 
   void _submitApplication() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
     if (_cvFilePath == null) {
       // No CV selected
       return;
@@ -48,7 +51,7 @@ class _SubmitApplicationScreenState extends State<ApplyToJobPostPage> {
     var request = http.MultipartRequest(
       'POST',
       Uri.parse(
-          'http://10.0.2.2:5266/api/CVUpload/${widget.postId}/upload-postcv'),
+          'http://10.0.2.2:5266/api/CVUpload/${widget.postId}/upload-postcv?userId=${userId}'),
     );
 
     request.files.add(await http.MultipartFile.fromPath('cvFile', file.path));
@@ -112,7 +115,9 @@ class _SubmitApplicationScreenState extends State<ApplyToJobPostPage> {
                 ),
               ),
             ),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
@@ -141,7 +146,8 @@ class _SubmitApplicationScreenState extends State<ApplyToJobPostPage> {
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
                         children: [
-                          Icon(Icons.description, color: mainAppColor, size: 40),
+                          Icon(Icons.description,
+                              color: mainAppColor, size: 40),
                           SizedBox(width: 16.0),
                           Expanded(
                             child: Text(

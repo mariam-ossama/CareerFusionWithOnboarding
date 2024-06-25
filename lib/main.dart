@@ -1,4 +1,3 @@
-
 import 'package:career_fusion/screens/HR_screens/post_cv_screening.dart';
 import 'package:career_fusion/screens/HR_screens/post_cv_screening_result.dart';
 import 'package:career_fusion/screens/HR_screens/post_technical_interview_selection.dart';
@@ -61,7 +60,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
-  final bool onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
+  final bool onboardingCompleted =
+      prefs.getBool('onboarding_completed') ?? false;
 
   runApp(CareerFusion(onboardingCompleted: onboardingCompleted));
 
@@ -86,12 +86,12 @@ class CareerFusion extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       routes: {
-        'OnboardingScreen':(context) => OnboardingScreen(),
+        'OnboardingScreen': (context) => OnboardingScreen(),
         'WelcomePage': (context) => const WelcomePage(),
         'SignUpPage': (context) => SignUpPage(),
         'LoginPage': (context) => LoginPage(),
         //'ForgotPasswordPage': (context) => ForgotPasswwordPage(),
-        'NewPasswordPage': (context) =>  NewPasswordPage(),
+        'NewPasswordPage': (context) => NewPasswordPage(),
         'RoleSelectionPage': (context) => RoleSelectionPage(),
         //'CandidateProfilePage': (context) => CandidateProfilePage(),
         'NotificationsPage': (context) => NotificationsPage(),
@@ -118,26 +118,37 @@ class CareerFusion extends StatelessWidget {
         'EditHRProfilePage': (context) => EditHRProfilePage(),
         //'TelephoneInterviewFormPage': (context) => TelephoneInterviewFormPage(),
         //'InterviewFormsPage':(context) => InterviewFormsPage(),
-        'TelephoneInterviewPositionsPage':(context) => TelephoneInterviewPositionsPage(),
-        'TelephoneInterviewSelectionPage':(context) => TelephoneInterviewSelectionPage(),
-        'TelephonInterviewResultPage':(context) => TelephonInterviewResultPage(),
-        'TechnicalInterviewModelsPage':(context) => TechnicalInterviewModelsPage(),
-        'TechnicalInterviewPositionsPage':(context) => TechnicalInterviewPositionsPage(),
-        'ExamPreparationScreen':(context) => ExamPreparationScreen(),
-        'TaskPreparationScreen':(context) => TaskPreparationScreen(),
-        'UpdateTaskPage':(context) => UpdateTaskPage(),
-        'TechnicalInterviewCandidatesPage':(context) => TechnicalInterviewCandidatesPage(),
-        'TecnicalInterviewResultPage':(context) => TecnicalInterviewResultPage(),
-        'AppliedJobsPage':(context) => AppliedJobsPage(),
-        'CandidateOpenPositionsListPage':(context) => CandidateOpenPositionsListPage(),
-        'HRPostsPage':(context) => HRPostsPage(),
-        'CandidateRoadmapPage':(context) => CandidateRoadmapPage(),
-        'PostCVScreeningPage':(context) => PostCVScreeningPage(),
-        'PostCVScreeningResult':(context) => PostCVScreeningResult(),
-        'PostTelephoneInterviewForm':(context) => PostTelephoneInterviewForm(),
-        'PostTelephoneInterviewSelectionProcessPage':(context) => PostTelephoneInterviewSelectionProcessPage(),
-        'PostTelephoneInterviewResultPage':(context) => PostTelephoneInterviewResultPage(),
-        'PostTechnicalInterviewSelectionProcessPage':(context) => PostTechnicalInterviewSelectionProcessPage(),
+        'TelephoneInterviewPositionsPage': (context) =>
+            TelephoneInterviewPositionsPage(),
+        'TelephoneInterviewSelectionPage': (context) =>
+            TelephoneInterviewSelectionPage(),
+        'TelephonInterviewResultPage': (context) =>
+            TelephonInterviewResultPage(),
+        'TechnicalInterviewModelsPage': (context) =>
+            TechnicalInterviewModelsPage(),
+        'TechnicalInterviewPositionsPage': (context) =>
+            TechnicalInterviewPositionsPage(),
+        'ExamPreparationScreen': (context) => ExamPreparationScreen(),
+        'TaskPreparationScreen': (context) => TaskPreparationScreen(),
+        'UpdateTaskPage': (context) => UpdateTaskPage(),
+        'TechnicalInterviewCandidatesPage': (context) =>
+            TechnicalInterviewCandidatesPage(),
+        'TecnicalInterviewResultPage': (context) =>
+            TecnicalInterviewResultPage(),
+        'AppliedJobsPage': (context) => AppliedJobsPage(),
+        'CandidateOpenPositionsListPage': (context) =>
+            CandidateOpenPositionsListPage(),
+        'HRPostsPage': (context) => HRPostsPage(),
+        'CandidateRoadmapPage': (context) => CandidateRoadmapPage(),
+        //'PostCVScreeningPage':(context) => PostCVScreeningPage(),
+        //'PostCVScreeningResult':(context) => PostCVScreeningResult(),
+        //'PostTelephoneInterviewForm': (context) => PostTelephoneInterviewForm(),
+        'PostTelephoneInterviewSelectionProcessPage': (context) =>
+            PostTelephoneInterviewSelectionProcessPage(),
+        'PostTelephoneInterviewResultPage': (context) =>
+            PostTelephoneInterviewResultPage(),
+        'PostTechnicalInterviewSelectionProcessPage': (context) =>
+            PostTechnicalInterviewSelectionProcessPage(),
       },
       debugShowCheckedModeBanner: false,
       initialRoute: onboardingCompleted ? 'WelcomePage' : 'OnboardingScreen',
