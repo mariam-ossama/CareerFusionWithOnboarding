@@ -19,7 +19,7 @@ class _HiringPlanPageState extends State<RecruitmentPage> {
           'Recruitment',
           style: TextStyle(
               //fontFamily: appFont,
-               color: Colors.white),
+              color: Colors.white),
         ),
         backgroundColor: mainAppColor,
       ),
@@ -94,7 +94,8 @@ class _HiringPlanPageState extends State<RecruitmentPage> {
                 ),
                 trailing: Icon(Icons.navigate_next),
                 onTap: () {
-                  Navigator.pushNamed(context, 'TelephoneInterviewPositionsPage');
+                  Navigator.pushNamed(
+                      context, 'TelephoneInterviewPositionsPage');
                 },
               ),
               ListTile(
@@ -108,7 +109,8 @@ class _HiringPlanPageState extends State<RecruitmentPage> {
                 ),
                 trailing: Icon(Icons.navigate_next),
                 onTap: () {
-                  Navigator.pushNamed(context, 'TelephoneInterviewSelectionPage');
+                  Navigator.pushNamed(
+                      context, 'TelephoneInterviewSelectionPage');
                 },
               ),
               ListTile(
@@ -141,7 +143,7 @@ class _HiringPlanPageState extends State<RecruitmentPage> {
             ),
             collapsedBackgroundColor: const Color.fromARGB(240, 240, 240, 240),
             children: <Widget>[
-              ListTile(
+              /*ListTile(
                 title: Text(
                   'Prepare Exam or Task',
                   style: TextStyle(
@@ -154,7 +156,7 @@ class _HiringPlanPageState extends State<RecruitmentPage> {
                 onTap: () {
                   Navigator.pushNamed(context, 'TechnicalInterviewPositionsPage');
                 },
-              ),
+              ),*/
               ListTile(
                 title: Text(
                   'Selection Process',
@@ -166,7 +168,8 @@ class _HiringPlanPageState extends State<RecruitmentPage> {
                 ),
                 trailing: Icon(Icons.navigate_next),
                 onTap: () {
-                  Navigator.pushNamed(context, 'TechnicalInterviewCandidatesPage');
+                  Navigator.pushNamed(
+                      context, 'TechnicalInterviewCandidatesPage');
                 },
               ),
               ListTile(

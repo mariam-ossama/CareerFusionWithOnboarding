@@ -7,15 +7,18 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TechnicalInterviewCandidatesPage extends StatefulWidget {
   const TechnicalInterviewCandidatesPage({super.key});
 
   @override
-  State<TechnicalInterviewCandidatesPage> createState() => _TechnicalInterviewCandidatesPageState();
+  State<TechnicalInterviewCandidatesPage> createState() =>
+      _TechnicalInterviewCandidatesPageState();
 }
 
-class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCandidatesPage> {
+class _TechnicalInterviewCandidatesPageState
+    extends State<TechnicalInterviewCandidatesPage> {
   String? selectedPositionId; // Selected position ID from dropdown menu
   List<Position> positions = [];
   List<CandidateTechnicatInterview> candidates = [];
@@ -33,7 +36,8 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
     final userId = prefs.getString('userId');
 
     try {
-      final response = await http.get(Uri.parse('${baseUrl}/JobForm/OpenPos/$userId'));
+      final response =
+          await http.get(Uri.parse('${baseUrl}/JobForm/OpenPos/$userId'));
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
         setState(() {
@@ -49,15 +53,18 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
 
   Future<void> fetchCandidates(String positionId) async {
     try {
-      final response = await http.get(Uri.parse('${baseUrl}/OpenPosCV/telephone-interview-passed/$positionId'));
-      print(positionId);
-      print(response.statusCode);
-      print(response.body);
+      final response = await http.get(Uri.parse(
+          '${baseUrl}/OpenPosCV/telephone-interview-passed/$positionId'));
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
         setState(() {
-          candidates = data.map((item) => CandidateTechnicatInterview.fromJson(item)).toList();
+          candidates = data
+              .map((item) => CandidateTechnicatInterview.fromJson(item))
+              .toList();
         });
+
+        // Fetch technical and physical interview dates for each candidate
+        await fetchInterviewDates(positionId);
       } else {
         print('Failed to fetch candidates: ${response.reasonPhrase}');
       }
@@ -66,9 +73,57 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
     }
   }
 
+  Future<void> fetchInterviewDates(String positionId) async {
+    for (var candidate in candidates) {
+      await fetchTechnicalInterviewDate(candidate, positionId);
+      await fetchPhysicalInterviewDate(candidate, positionId);
+    }
+  }
+
+  Future<void> fetchTechnicalInterviewDate(
+      CandidateTechnicatInterview candidate, String positionId) async {
+    try {
+      final response = await http.get(Uri.parse(
+          '${baseUrl}/OpenPosCV/${candidate.id}/jobform/$positionId/technical-assessment-date'));
+      print('tech_date: ${response.statusCode} --> ${response.body}');
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        setState(() {
+          candidate.technicalInterviewDate = DateTime.parse(data['data']);
+        });
+      } else {
+        print(
+            'Failed to fetch technical interview date: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error fetching technical interview date: $e');
+    }
+  }
+
+  Future<void> fetchPhysicalInterviewDate(
+      CandidateTechnicatInterview candidate, String positionId) async {
+    try {
+      final response = await http.get(Uri.parse(
+          '${baseUrl}/OpenPosCV/${candidate.id}/jobform/$positionId/physical-interview-date'));
+      print('ph_date: ${response.statusCode} --> ${response.body}');
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        setState(() {
+          candidate.physicalInterviewDate = DateTime.parse(data['data']);
+        });
+      } else {
+        print(
+            'Failed to fetch physical interview date: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error fetching physical interview date: $e');
+    }
+  }
+
   Future<Map<String, String>> fetchCandidateInfo(String userId) async {
     try {
-      final response = await http.get(Uri.parse('${baseUrl}/OpenPosCV/$userId/contact-info'));
+      final response = await http
+          .get(Uri.parse('${baseUrl}/OpenPosCV/$userId/contact-info'));
       if (response.statusCode == 200) {
         Map<String, dynamic> data = json.decode(response.body);
         return {
@@ -86,8 +141,19 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
     }
   }
 
-  Future<void> _showCandidateInfo(BuildContext context, CandidateTechnicatInterview candidate) async {
-    Map<String, String> candidateInfo = await fetchCandidateInfo(candidate.userId);
+  void _launchPhoneCall(String phoneNumber) async {
+    String url = 'tel:$phoneNumber';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Future<void> _showCandidateInfo(
+      BuildContext context, CandidateTechnicatInterview candidate) async {
+    Map<String, String> candidateInfo =
+        await fetchCandidateInfo(candidate.userId);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -111,7 +177,6 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
                     candidateInfo['phoneNumber'] ?? 'N/A',
                     style: TextStyle(
                       fontSize: 18,
-                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ],
@@ -125,7 +190,6 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
                     candidateInfo['email'] ?? 'N/A',
                     style: TextStyle(
                       fontSize: 18,
-                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ],
@@ -140,7 +204,6 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
                       candidate.filePath,
                       style: TextStyle(
                         fontSize: 18,
-                        decoration: TextDecoration.underline,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -150,6 +213,13 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
             ],
           ),
           actions: <Widget>[
+            TextButton(
+              child: Text('Calll'),
+              onPressed: () {
+                _launchPhoneCall(candidateInfo['phoneNumber']!);
+                Navigator.of(context).pop();
+              },
+            ),
             TextButton(
               child: Text('Close'),
               onPressed: () {
@@ -162,7 +232,8 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
     );
   }
 
-  Future<void> _selectDateTime(BuildContext context, CandidateTechnicatInterview candidate, String interviewType) async {
+  Future<void> _selectDateTime(BuildContext context,
+      CandidateTechnicatInterview candidate, String interviewType) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -175,8 +246,14 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
         initialTime: TimeOfDay.now(),
       );
       if (pickedTime != null) {
-        final DateTime selectedDateTime = DateTime(pickedDate.year, pickedDate.month, pickedDate.day, pickedTime.hour, pickedTime.minute);
-        print('Selected $interviewType interview time for ${candidate.userFullName}: $selectedDateTime');
+        final DateTime selectedDateTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute);
+        print(
+            'Selected $interviewType interview time for ${candidate.userFullName}: $selectedDateTime');
 
         if (interviewType == 'technical') {
           setState(() {
@@ -188,7 +265,9 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
           });
         }
 
-        if (selectedTechnicalInterviewDate != null && selectedPhysicalInterviewDate != null && selectedPositionId != null) {
+        if (selectedTechnicalInterviewDate != null &&
+            selectedPhysicalInterviewDate != null &&
+            selectedPositionId != null) {
           await setInterviewDate(
             candidate.id,
             selectedPositionId!,
@@ -200,8 +279,10 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
     }
   }
 
-  Future<void> setInterviewDate(int candidateId, String positionId, String technicalAssessmentDate, String physicalInterviewDate) async {
-    final url = Uri.parse('${baseUrl}/OpenPosCV/$candidateId/jobform/$positionId/set-technical-interview-date'
+  Future<void> setInterviewDate(int candidateId, String positionId,
+      String technicalAssessmentDate, String physicalInterviewDate) async {
+    final url = Uri.parse(
+        '${baseUrl}/OpenPosCV/$candidateId/jobform/$positionId/set-technical-interview-date'
         '?technicalAssessmentDate=$technicalAssessmentDate&physicalInterviewDate=$physicalInterviewDate');
     try {
       final response = await http.put(url);
@@ -209,6 +290,11 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
         final responseData = json.decode(response.body);
         if (responseData['success'] == true) {
           print('Interview dates set successfully');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(
+                    'Assessment & Physical interview Dates set successfully')),
+          );
         } else {
           print('Failed to set interview dates: ${responseData['message']}');
         }
@@ -225,7 +311,7 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Technical Interview Candidates',
+          'Technical & Physical Interview',
           style: TextStyle(
             color: Colors.white,
           ),
@@ -261,9 +347,11 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
                     fetchCandidates(newValue!);
                   });
                 },
-                items: positions.map<DropdownMenuItem<String>>((Position position) {
+                items: positions
+                    .map<DropdownMenuItem<String>>((Position position) {
                   return DropdownMenuItem<String>(
-                    value: position.jobId?.toString(), // Convert jobId to String
+                    value:
+                        position.jobId?.toString(), // Convert jobId to String
                     child: Center(
                       child: Text(
                         position.title,
@@ -287,44 +375,83 @@ class _TechnicalInterviewCandidatesPageState extends State<TechnicalInterviewCan
               ),
             ),
           ),
-
-          if (selectedPositionId != null) // Show candidates only if a position is selected
+          if (selectedPositionId !=
+              null) // Show candidates only if a position is selected
             Expanded(
               child: ListView.builder(
                 itemCount: candidates.length,
                 itemBuilder: (context, index) {
+                  String candidateName = candidates[index].userFullName;
+                  String technicalInterview =
+                      candidates[index].technicalInterviewDate != null
+                          ? candidates[index].technicalInterviewDate!.toString()
+                          : 'Not set';
+                  String physicalInterview =
+                      candidates[index].physicalInterviewDate != null
+                          ? candidates[index].physicalInterviewDate!.toString()
+                          : 'Not set';
+
                   return Card(
                     margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.description, color: mainAppColor),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              candidates[index].userFullName,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                candidateName,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.assignment_ind,
+                                        color: mainAppColor),
+                                    onPressed: () {
+                                      _selectDateTime(context,
+                                          candidates[index], 'technical');
+                                      setState(() {
+                                        fetchCandidates(candidates[index]
+                                            .technicalInterviewDate as String);
+                                      });
+                                    },
+                                    tooltip: 'Set Technical Interview',
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.schedule_outlined,
+                                        color: mainAppColor),
+                                    onPressed: () {
+                                      _selectDateTime(
+                                          context, candidates[index], 'final');
+                                      setState(() {
+                                        fetchCandidates(candidates[index]
+                                            .physicalInterviewDate as String);
+                                      });
+                                    },
+                                    tooltip: 'Set Final Interview',
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.contact_phone,
+                                        color: mainAppColor),
+                                    onPressed: () {
+                                      _showCandidateInfo(
+                                          context, candidates[index]);
+                                    },
+                                    tooltip: 'View Candidate Info',
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                          IconButton(
-                            icon: Icon(Icons.assignment_ind, color: mainAppColor),
-                            onPressed: () => _selectDateTime(context, candidates[index], 'technical'),
-                            tooltip: 'Set Technical Interview',
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.schedule_outlined, color: mainAppColor),
-                            onPressed: () => _selectDateTime(context, candidates[index], 'final'),
-                            tooltip: 'Set Final Interview',
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.contact_phone, color: mainAppColor),
-                            onPressed: () => _showCandidateInfo(context, candidates[index]),
-                            tooltip: 'View Candidate Info',
-                          ),
+                          SizedBox(height: 5),
+                          Text('Technical Interview: $technicalInterview'),
+                          Text('Physical Interview: $physicalInterview'),
                         ],
                       ),
                     ),

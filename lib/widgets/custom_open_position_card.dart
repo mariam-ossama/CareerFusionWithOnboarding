@@ -1,6 +1,7 @@
 import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/models/open_position.dart';
 import 'package:flutter/material.dart';
+
 class PositionCard extends StatelessWidget {
   final Position position;
   final VoidCallback onTap;
@@ -18,22 +19,30 @@ class PositionCard extends StatelessWidget {
             Text(position.title, style: TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Row(
           children: <Widget>[
-            Icon(Icons.work_outline, size: 20.0),
+            Icon(
+              Icons.work_outline,
+              size: 20.0,
+              color: mainAppColor,
+            ),
             SizedBox(width: 5.0),
             Text(
               position.type,
               style: TextStyle(
-                //fontFamily: appFont,
-              ),
+                  //fontFamily: appFont,
+                  ),
             ),
             SizedBox(width: 10.0),
-            Icon(Icons.location_on_outlined, size: 20.0),
+            Icon(
+              Icons.location_on_outlined,
+              size: 20.0,
+              color: mainAppColor,
+            ),
             SizedBox(width: 5.0),
             Text(
               position.location,
               style: TextStyle(
-                //fontFamily: appFont,
-              ),
+                  //fontFamily: appFont,
+                  ),
             ),
           ],
         ),

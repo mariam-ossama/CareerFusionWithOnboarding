@@ -252,13 +252,13 @@ class _PostCVScreeningResultState extends State<PostCVScreeningResult> {
               },
             ),
           ),
-          CustomButton(
+          /*CustomButton(
             text: 'Export to excel',
             onPressed: () {
               // TODO: Implement export to Excel functionality
             },
           ),
-          SizedBox(height: 5),
+          SizedBox(height: 5),*/
         ],
       ),
     );

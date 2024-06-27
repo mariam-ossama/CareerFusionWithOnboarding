@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/screens/candidate_screens/candidate_account_screen.dart';
-import 'package:career_fusion/screens/admin_screen.dart';
+import 'package:career_fusion/screens/admin_screens/admin_screen.dart';
 import 'package:career_fusion/screens/HR_screens/hr_account_screen.dart';
 import 'package:career_fusion/widgets/custom_app_bar.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
@@ -36,8 +36,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
         title: const Text(
           'CareerFusion',
           style: TextStyle(
-            //fontFamily: appFont,
-            color: Colors.white),
+              //fontFamily: appFont,
+              color: Colors.white),
         ),
         backgroundColor: mainAppColor,
       ),
@@ -141,8 +141,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 const Text(
                   'remember me',
                   style: TextStyle(
-                      fontSize: 14, //fontFamily: appFont,
-                      ),
+                    fontSize: 14, //fontFamily: appFont,
+                  ),
                 ),
                 const SizedBox(
                   width: 130,
@@ -170,10 +170,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 log(emailController.text);
                 log(passwordController.text);
                 Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => AdminPage()),
-        (route) => false,
-      );
+                  context,
+                  MaterialPageRoute(builder: (context) => AdminPage()),
+                  (route) => false,
+                );
                 /*loginAdmin(
                     emailController.text, passwordController.text, context);*/
               },

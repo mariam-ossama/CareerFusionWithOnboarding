@@ -1,211 +1,253 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PostTelephoneInterviewResultPage extends StatefulWidget {
-  const PostTelephoneInterviewResultPage({super.key});
+  final int postId;
+
+  const PostTelephoneInterviewResultPage({Key? key, required this.postId})
+      : super(key: key);
 
   @override
-  State<PostTelephoneInterviewResultPage> createState() => _PostTelephoneInterviewResultPageState();
+  State<PostTelephoneInterviewResultPage> createState() =>
+      _PostTelephoneInterviewResultPageState();
 }
 
-class _PostTelephoneInterviewResultPageState extends State<PostTelephoneInterviewResultPage> {
-  // Dummy data for positions
-  List<PostPosition> positions = [
-    PostPosition(jobId: 1, title: 'Software Engineer'),
-    PostPosition(jobId: 2, title: 'Data Scientist'),
-    PostPosition(jobId: 3, title: 'Product Manager'),
-  ];
-
-  // Dummy data for candidates
-  List<Map<String, dynamic>> candidates = [
-    {
-      'userId': '1',
-      'userFullName': 'John Doe',
-      'filePath': 'Resume.pdf',
-      'phoneNumber': '123-456-7890',
-      'email': 'john.doe@example.com',
-    },
-    {
-      'userId': '2',
-      'userFullName': 'Jane Smith',
-      'filePath': 'Resume.pdf',
-      'phoneNumber': '987-654-3210',
-      'email': 'jane.smith@example.com',
-    },
-  ];
-
+class _PostTelephoneInterviewResultPageState
+    extends State<PostTelephoneInterviewResultPage> {
+  List<Map<String, dynamic>> candidates = []; // Updated to fetch from API
   PostPosition? selectedPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPassedCandidates();
+  }
+
+  Future<void> fetchPassedCandidates() async {
+    final url =
+        '${baseUrl}/CVUpload/telephone-interview-passed/${widget.postId}';
+    final response = await http.get(Uri.parse(url));
+
+    print(response.body);
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      try {
+        final List<dynamic> data = json.decode(response.body);
+        print('Received passed candidates data: $data'); // Debug print
+        final List<Map<String, dynamic>> fetchedCandidates =
+            await Future.wait(data.map((item) async {
+          final contactUrl =
+              '${baseUrl}/OpenPosCV/${item['userId']}/contact-info';
+          final contactResponse = await http.get(Uri.parse(contactUrl));
+          if (contactResponse.statusCode == 200) {
+            final contactData = json.decode(contactResponse.body);
+            return {
+              'userId': item['userId'],
+              'userFullName': item['userFullName'],
+              'filePath': item['filePath'],
+              'phoneNumber': contactData['phoneNumber'],
+              'email': contactData['email'],
+            };
+          } else {
+            throw 'Failed to fetch contact info: ${contactResponse.statusCode}';
+          }
+        }));
+
+        print('Parsed passed candidates: $fetchedCandidates'); // Debug print
+        setState(() {
+          candidates = fetchedCandidates;
+        });
+      } catch (e) {
+        print('Error fetching passed candidates: $e');
+      }
+    } else {
+      print('Failed to fetch passed candidates: ${response.statusCode}');
+    }
+  }
+
+  void _callCandidate(String? phoneNumber) async {
+    if (phoneNumber != null) {
+      String url = 'tel:$phoneNumber';
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        print('Could not launch $url');
+      }
+    }
+  }
+
+  void _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      print('Could not launch $url');
+    }
+  }
+
+  Future<void> _exportToExcel() async {
+    final excelExportUrl =
+        '${baseUrl}/CVUpload/export-telephone-interview-passed/${widget.postId}';
+    try {
+      final response = await http.get(Uri.parse(excelExportUrl));
+      print(response.body);
+      print(response.statusCode);
+      if (response.statusCode == 200) {
+        final bytes = response.bodyBytes;
+        final directory = await getExternalStorageDirectory();
+        if (directory != null) {
+          final downloadsDirectory =
+              await Directory('${directory.path}/Downloads')
+                  .create(recursive: true);
+          final filePath = '${downloadsDirectory.path}/interview_results.xlsx';
+          File file = File(filePath);
+          await file.writeAsBytes(bytes);
+
+          _launchURL(filePath);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Excel file downloaded successfully')),
+          );
+        } else {
+          throw 'Failed to get downloads directory';
+        }
+      } else {
+        print('Failed to export to Excel: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to export to Excel')),
+        );
+      }
+    } catch (e) {
+      print('Error exporting to Excel: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error exporting to Excel')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Post Telephone In. Result',
-          style: TextStyle(
-            color: Colors.white,
-          ),
+          'Post Telephone Interview Result',
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: mainAppColor,
       ),
       body: Column(
         children: [
           SizedBox(height: 10),
-          Center(
-            child: Container(
-              width: 370,
-              decoration: ShapeDecoration(
-                color: secondColor,
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    width: 1.0,
-                    style: BorderStyle.solid,
-                    color: Colors.white,
-                  ),
-                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                ),
-              ),
-              padding: EdgeInsets.all(8.0),
-              child: DropdownButton<String>(
-                iconEnabledColor: Colors.white,
-                isExpanded: true,
-                value: selectedPosition?.jobId.toString(),
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      selectedPosition = positions.firstWhere(
-                        (position) => position.jobId.toString() == newValue,
-                      );
-                    });
-                  }
-                },
-                items: positions.map<DropdownMenuItem<String>>((PostPosition position) {
-                  return DropdownMenuItem<String>(
-                    value: position.jobId.toString(),
-                    child: Center(
-                      child: Text(
-                        position.title,
+          Expanded(
+            child: ListView.builder(
+              itemCount: candidates.length,
+              itemBuilder: (context, index) {
+                String candidateName = candidates[index]['userFullName'];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16.0),
+                  child: Card(
+                    elevation: 3,
+                    child: ListTile(
+                      title: Text(
+                        candidateName,
                         style: TextStyle(
-                          fontSize: 20,
-                          color: mainAppColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
-                hint: Center(
-                  child: Text(
-                    'Choose Position',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: mainAppColor,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          if (selectedPosition != null)
-            Expanded(
-              child: ListView.builder(
-                itemCount: candidates.length,
-                itemBuilder: (context, index) {
-                  String candidateName = candidates[index]['userFullName'];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                    child: Card(
-                      elevation: 3,
-                      child: ListTile(
-                        title: Text(
-                          candidateName,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
+                      subtitle: Text(
+                        candidates[index]['filePath'],
+                        style: TextStyle(
+                          color: Colors.grey,
                         ),
-                        subtitle: Text(
-                          candidates[index]['filePath'],
-                          style: TextStyle(
-                            color: Colors.grey,
-                          ),
-                        ),
-                        trailing: IconButton(
-                          icon: Icon(Icons.contact_phone, color: mainAppColor),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text(
-                                    candidateName,
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: mainAppColor,
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.contact_phone, color: mainAppColor),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text(
+                                  candidateName,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: mainAppColor,
+                                  ),
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Row(
+                                      children: [
+                                        Icon(Icons.phone, color: mainAppColor),
+                                        SizedBox(width: 7),
+                                        Text(
+                                          candidates[index]['phoneNumber'],
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Row(
-                                        children: [
-                                          Icon(Icons.phone, color: mainAppColor),
-                                          SizedBox(width: 7),
-                                          Text(
-                                            candidates[index]['phoneNumber'],
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                            ),
+                                    SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.email, color: mainAppColor),
+                                        SizedBox(width: 7),
+                                        Text(
+                                          candidates[index]['email'],
+                                          style: TextStyle(
+                                            fontSize: 16,
                                           ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 10),
-                                      Row(
-                                        children: [
-                                          Icon(Icons.email, color: mainAppColor),
-                                          SizedBox(width: 7),
-                                          Text(
-                                            candidates[index]['email'],
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      child: Text('Close'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                );
-                              },
-                            );
-                          },
-                        ),
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: Text('Call'),
+                                    onPressed: () {
+                                      _callCandidate(
+                                          candidates[index]['phoneNumber']);
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: Text('Close'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          if (selectedPosition != null)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: CustomButton(
-                text: 'Export to Excel',
-                onPressed: () {
-                  // Implement your export to Excel logic here
-                },
-              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CustomButton(
+              text: 'Export to Excel',
+              onPressed: _exportToExcel,
             ),
+          ),
         ],
       ),
     );

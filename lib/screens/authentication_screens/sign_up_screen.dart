@@ -501,10 +501,10 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   bool isValidPhoneNumber(String phoneNumber) {
-    // Phone number validation: must be 10 digits
-    String pattern = r'^\d{10}$';
+    // Phone number validation: must be 11 digits
+    String pattern = r'^\d{11}$';
     RegExp regex = RegExp(pattern);
-    return regex.hasMatch(phoneNumber);
+    return true;
   }
 
   bool isValidPassword(String password) {

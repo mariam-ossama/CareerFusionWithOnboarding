@@ -3,9 +3,10 @@ import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/models/open_position.dart';
 import 'package:career_fusion/screens/HR_screens/candidate_telehpone_form.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TelephoneInterviewSelectionPage extends StatefulWidget {
   @override
@@ -80,6 +81,17 @@ class _TelephoneInterviewSelectionPageState
           candidates = data.cast<Map<String, dynamic>>();
           selectedCandidates = List<bool>.filled(candidates.length, false);
           selectedDates = List<DateTime?>.filled(candidates.length, null);
+
+          // Fetch telephone interview dates for each candidate
+          for (int i = 0; i < candidates.length; i++) {
+            fetchTelephoneInterviewDate(
+                    candidates[i]['id'], int.parse(selectedPosition!))
+                .then((date) {
+              setState(() {
+                selectedDates[i] = date;
+              });
+            });
+          }
         });
       } catch (e) {
         print('Error parsing candidates data: $e');
@@ -87,6 +99,28 @@ class _TelephoneInterviewSelectionPageState
     } else {
       print('Failed to fetch candidates: ${response.statusCode}');
     }
+  }
+
+  Future<DateTime?> fetchTelephoneInterviewDate(int cvId, int jobFormId) async {
+    final url =
+        '${baseUrl}/OpenPosCV/$cvId/jobform/$jobFormId/get-telephone-interview-date';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      try {
+        final Map<String, dynamic> data = json.decode(response.body);
+        print('Received telephone interview date: $data'); // Debug print
+        final String? dateTimeString = data['data'];
+        if (dateTimeString != null) {
+          return DateTime.parse(dateTimeString);
+        }
+      } catch (e) {
+        print('Error parsing telephone interview date: $e');
+      }
+    } else {
+      print('Failed to fetch telephone interview date: ${response.statusCode}');
+    }
+    return null;
   }
 
   Future<void> fetchContactInfo(String userId) async {
@@ -141,6 +175,13 @@ class _TelephoneInterviewSelectionPageState
               ),
               actions: <Widget>[
                 TextButton(
+                  child: Text('Call'),
+                  onPressed: () {
+                    _callCandidate(data['phoneNumber']);
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
                   child: Text('Close'),
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -158,9 +199,21 @@ class _TelephoneInterviewSelectionPageState
     }
   }
 
+  void _callCandidate(String? phoneNumber) async {
+    if (phoneNumber != null) {
+      String url = 'tel:$phoneNumber';
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        print('Could not launch $url');
+      }
+    }
+  }
+
   Future<void> toggleTelephoneInterviewStatus(
       int jobFormId, int cvId, bool isChecked) async {
-    final url = '${baseUrl}/OpenPosCV/$jobFormId/$cvId/toggle-telephone-interview';
+    final url =
+        '${baseUrl}/OpenPosCV/$jobFormId/$cvId/toggle-telephone-interview';
     final response = await http.put(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
@@ -174,6 +227,9 @@ class _TelephoneInterviewSelectionPageState
       try {
         final Map<String, dynamic> data = json.decode(response.body);
         print('Received response: $data'); // Debug print
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Candidate is set as passed successfully')),
+        );
         if (data['success']) {
           print(data['message']);
         } else {
@@ -183,7 +239,8 @@ class _TelephoneInterviewSelectionPageState
         print('Error parsing toggle status response: $e');
       }
     } else {
-      print('Failed to toggle telephone interview status: ${response.statusCode}');
+      print(
+          'Failed to toggle telephone interview status: ${response.statusCode}');
     }
   }
 
@@ -212,12 +269,14 @@ class _TelephoneInterviewSelectionPageState
         });
 
         // Call API to set interview date for the candidate
-        _setInterviewDate(candidates[index]['id'], int.parse(selectedPosition!), selectedDates[index]!);
+        _setInterviewDate(candidates[index]['id'], int.parse(selectedPosition!),
+            selectedDates[index]!);
       }
     }
   }
 
-  Future<void> _setInterviewDate(int cvId, int jobFormId, DateTime interviewDate) async {
+  Future<void> _setInterviewDate(
+      int cvId, int jobFormId, DateTime interviewDate) async {
     final url =
         '${baseUrl}/OpenPosCV/$cvId/jobform/$jobFormId/set-telephone-interview-date?interviewDate=$interviewDate';
     final response = await http.put(
@@ -230,12 +289,16 @@ class _TelephoneInterviewSelectionPageState
 
     if (response.statusCode == 200) {
       print('Interview date set successfully');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Telephone interview Date set successfully')),
+      );
     } else {
       print('Failed to set interview date: ${response.statusCode}');
     }
   }
 
-  Future<void> updateScoresForScreened(int jobFormId, List<String> emails) async {
+  Future<void> updateScoresForScreened(
+      int jobFormId, List<String> emails) async {
     final url = '${baseUrl}/OpenPosCV/update-scores-for-screened/$jobFormId';
     final response = await http.put(
       Uri.parse(url),
@@ -265,7 +328,9 @@ class _TelephoneInterviewSelectionPageState
       try {
         final List<dynamic> data = json.decode(response.body);
         print('Received matched CVs: $data'); // Debug print
-        final List<String> emails = data.map((item) => item['contact_info']['email'] as String).toList();
+        final List<String> emails = data
+            .map((item) => item['contact_info']['email'] as String)
+            .toList();
         await updateScoresForScreened(jobFormId, emails);
       } catch (e) {
         print('Error parsing matched CVs data: $e');
@@ -277,7 +342,7 @@ class _TelephoneInterviewSelectionPageState
 
   @override
   Widget build(BuildContext context) {
-    // Debug print statements
+// Debug print statements
     print('Positions: $positions');
     print('Selected Position: $selectedPosition');
 
@@ -320,11 +385,12 @@ class _TelephoneInterviewSelectionPageState
                         if (newValue != null) {
                           setState(() {
                             selectedPosition = newValue;
-                            fetchMatchedCVsAndUpdateScores(int.parse(newValue));
+                            fetchCandidates(int.parse(newValue));
                           });
                         }
                       },
-                      items: positions.map<DropdownMenuItem<String>>((Position position) {
+                      items: positions
+                          .map<DropdownMenuItem<String>>((Position position) {
                         return DropdownMenuItem<String>(
                           value: position.jobId.toString(),
                           child: Center(
@@ -393,7 +459,8 @@ class _TelephoneInterviewSelectionPageState
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => CandidateTelephoneFormPage(
+                                builder: (context) =>
+                                    CandidateTelephoneFormPage(
                                   jobTitle: positions
                                       .firstWhere((p) =>
                                           p.jobId.toString() ==
@@ -411,8 +478,7 @@ class _TelephoneInterviewSelectionPageState
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Row(
                                     children: [
@@ -421,18 +487,16 @@ class _TelephoneInterviewSelectionPageState
                                         onChanged: (bool? value) {
                                           if (value != null) {
                                             setState(() {
-                                              selectedCandidates[index] =
-                                                  value;
+                                              selectedCandidates[index] = value;
                                               toggleTelephoneInterviewStatus(
-                                                  int.parse(
-                                                      selectedPosition!),
+                                                  int.parse(selectedPosition!),
                                                   candidates[index]['id'],
                                                   value);
                                               if (!value) {
                                                 selectAll = false;
                                               } else if (selectedCandidates
-                                                  .every((element) =>
-                                                      element)) {
+                                                  .every(
+                                                      (element) => element)) {
                                                 selectAll = true;
                                               }
                                             });
@@ -483,15 +547,15 @@ class _TelephoneInterviewSelectionPageState
                     ),
                   ),
                 /*if (selectedPosition != null && candidates.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CustomButton(
-                      text: 'Export to Excel',
-                      onPressed: () {
-                        // Implement your export to Excel logic here
-                      },
-                    ),
-                  ),*/
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CustomButton(
+                  text: 'Export to Excel',
+                  onPressed: () {
+                    // Implement your export to Excel logic here
+                  },
+                ),
+              ),*/
               ],
             ),
     );

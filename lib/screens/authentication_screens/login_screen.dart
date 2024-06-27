@@ -4,6 +4,7 @@ import 'dart:ffi';
 import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/models/candidate.dart';
 import 'package:career_fusion/screens/HR_screens/hr_account_screen.dart';
+import 'package:career_fusion/screens/admin_screens/admin_screen.dart';
 import 'package:career_fusion/screens/candidate_screens/candidate_account_screen.dart';
 import 'package:career_fusion/screens/authentication_screens/forgot_password_screen.dart';
 import 'package:career_fusion/screens/authentication_screens/role_selection_screen.dart';
@@ -319,12 +320,18 @@ void loginUser(String email, String password, BuildContext context) async {
           MaterialPageRoute(builder: (context) => HRAccountPage()),
           (Route<dynamic> route) => false,
         );
-      } else {
+      } else if (roles.contains('User')) {
         print('else is fired');
         // Navigate to AccountPage and remove all previous screens
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => AccountPage()),
+          (Route<dynamic> route) => false,
+        );
+      } else if (roles.contains('Admin')) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => AdminPage()),
           (Route<dynamic> route) => false,
         );
       }

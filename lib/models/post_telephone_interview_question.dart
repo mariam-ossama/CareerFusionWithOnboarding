@@ -9,12 +9,17 @@ class PostTelephoneInterviewQuestion {
       questionId: json['questionId'] != null
           ? int.tryParse(json['questionId'].toString())
           : null,
-      question: json['questions'],
+      question: json['question'],
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'questionId': questionId ?? 0, // Ensure questionId is an integer
-        'questions': question,
-      };
+  Map<String, dynamic> toJson() {
+    final data = <String, dynamic>{
+      'question': question,
+    };
+    if (questionId != null) {
+      data['questionId'] = questionId;
+    }
+    return data;
+  }
 }

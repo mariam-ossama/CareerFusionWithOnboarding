@@ -127,6 +127,26 @@ class RoleSelectionPage extends StatelessWidget {
                       }
                     }),
                 SizedBox(height: 60),
+                CustomButton(
+                    text: 'Admin',
+                    onPressed: () async {
+                      //Navigator.pushNamed(context, 'HRAccountPage');
+                      String? userId = await AuthManager.retrieveUserId();
+
+                      if (userId != null) {
+                        try {
+                          await _authorizeRoleAsAdmin(context, 'Admin', userId);
+                          Navigator.pushNamed(context, 'AdminPage');
+                        } catch (e) {
+                          print('Navigation error: $e');
+                        }
+                      } else {
+                        print('User ID is null');
+                      }
+                    }),
+                SizedBox(
+                  height: 60,
+                )
               ],
             ),
           ),
@@ -157,6 +177,51 @@ class RoleSelectionPage extends StatelessWidget {
 }*/
 
 Future<void> _authorizeRoleAsUser(
+    BuildContext context, String role, String userId) async {
+  // Make a POST request to the API endpoint
+  var url = Uri.parse('${baseUrl}/Auth/addrole');
+  var response = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      //'Authorization': 'Bearer $token', // Pass the token in the header
+    },
+    body: jsonEncode({'role': role, 'userId': userId}),
+  );
+  print(response.body);
+
+  // Check if the request was successful
+  if (response.statusCode == 200) {
+    // Check the response body for user ID comparison
+    var responseBody = json.decode(response.body);
+    var authorizedUserId =
+        responseBody['userId']; // Assuming the response includes the user ID
+
+    // Compare the authorized user ID with the input user ID
+    if (authorizedUserId == userId) {
+      // Navigate the user based on the role
+      if (role == 'HR') {
+        Navigator.pushNamed(context, 'HRAccountPage');
+      }
+      if (role == 'User') {
+        Navigator.pushNamed(context, 'AccountPage');
+      }
+      if (role == 'Admin') {
+        Navigator.pushNamed(context, 'AdminPage');
+      }
+    } else {
+      // User ID doesn't match
+      print('Unauthorized user ID');
+      // Handle unauthorized access
+    }
+  } else {
+    // Handle error response from the API
+    print('Failed to authorize role: ${response.statusCode}');
+    // You can show an error message to the user or handle the error accordingly
+  }
+}
+
+Future<void> _authorizeRoleAsAdmin(
     BuildContext context, String role, String userId) async {
   // Make a POST request to the API endpoint
   var url = Uri.parse('${baseUrl}/Auth/addrole');

@@ -48,7 +48,7 @@ class _PostTelephoneInterviewFormState
     }
   }
 
-  Future<void> addQuestion(PostTelephoneInterviewQuestion question) async {
+  Future<void> addQuestion(String questionText) async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId');
 
@@ -59,23 +59,30 @@ class _PostTelephoneInterviewFormState
 
     final url =
         '${baseUrl}/TelephoneInterviewQuestions/add-telephone-interview-questions/${widget.postId}';
+    final body = jsonEncode([
+      {
+        'questionId': 0, // Assuming 0 or a unique identifier for new questions
+        'question': questionText
+      }
+    ]);
+
+    print('Request URL: $url');
+    print('Request Body: $body');
+
     final response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode({
-        'questions': [
-          question.toJson()
-        ] // Wrapping question in a 'questions' field
-      }),
+      body: body,
     );
-    print(response.body);
-    print(response.statusCode);
+
+    print('Response Body: ${response.body}');
+    print('Response Status: ${response.statusCode}');
 
     if (response.statusCode == 200) {
       setState(() {
-        questions.add(question);
+        questions.add(PostTelephoneInterviewQuestion(question: questionText));
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -124,7 +131,7 @@ class _PostTelephoneInterviewFormState
 
   Future<void> updateQuestion(int questionId, String updatedQuestion) async {
     final url =
-        '${baseUrl}TelephoneInterviewQuestions/update-telephone-interview-question/${widget.postId}/${questionId}';
+        '${baseUrl}/TelephoneInterviewQuestions/update-telephone-interview-question/${widget.postId}/${questionId}';
     final response = await http.put(
       Uri.parse(url),
       headers: <String, String>{
@@ -142,7 +149,7 @@ class _PostTelephoneInterviewFormState
     if (response.statusCode == 200) {
       // Update the question in the local list
       setState(() {
-        var index = questions.indexWhere((q) => q.question == questionId);
+        var index = questions.indexWhere((q) => q.questionId == questionId);
         if (index != -1) {
           questions[index].question = updatedQuestion;
         }
@@ -150,7 +157,7 @@ class _PostTelephoneInterviewFormState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Question updated successfully'),
-          //backgroundColor: Colors.green,
+          backgroundColor: Colors.green,
         ),
       );
       print('Question updated successfully');
@@ -158,10 +165,11 @@ class _PostTelephoneInterviewFormState
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update question: ${response.statusCode}'),
-          //backgroundColor: Colors.red,
+          backgroundColor: Colors.red,
         ),
       );
       print('Failed to update question: ${response.statusCode}');
+      print('Response Body: ${response.body}');
     }
   }
 
@@ -208,8 +216,8 @@ class _PostTelephoneInterviewFormState
                               TextButton(
                                 child: Text('Update'),
                                 onPressed: () async {
-                                  await updateQuestion(
-                                      question.questionId!, editedQuestion);
+                                  await updateQuestion(question.questionId!,
+                                      editedQuestion); // Error occurs here
                                   Navigator.of(context).pop();
                                   print(question.questionId);
                                   print(editedQuestion);
@@ -268,10 +276,7 @@ class _PostTelephoneInterviewFormState
                     TextButton(
                       child: Text('Finish'),
                       onPressed: () async {
-                        final question = PostTelephoneInterviewQuestion(
-                          question: newQuestion,
-                        );
-                        await addQuestion(question);
+                        await addQuestion(newQuestion);
                         Navigator.of(context).pop();
                         newQuestion = '';
                       },

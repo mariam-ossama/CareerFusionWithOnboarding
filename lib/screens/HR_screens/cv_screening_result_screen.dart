@@ -7,6 +7,8 @@ import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.da
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:url_launcher/url_launcher.dart';
+
 class CVScreeningResultPage extends StatefulWidget {
   @override
   _CVScreeningResultPageState createState() => _CVScreeningResultPageState();
@@ -18,14 +20,27 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
   List<CandidateCVScreening> candidates = [];
 
   Future<void> fetchCandidates() async {
-    final response = await http.get(Uri.parse('https://flask-deployment-hev4.onrender.com/get-matched-cvs'));
+    final response = await http.get(Uri.parse(
+        'https://flask-deployment-hev4.onrender.com/get-matched-cvs'));
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
       setState(() {
-        candidates = data.map((item) => CandidateCVScreening.fromJson(item)).toList();
+        candidates =
+            data.map((item) => CandidateCVScreening.fromJson(item)).toList();
       });
     } else {
       print('Failed to fetch candidates: ${response.reasonPhrase}');
+    }
+  }
+
+  void _callCandidate(String? phoneNumber) async {
+    if (phoneNumber != null) {
+      String url = 'tel:$phoneNumber';
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        print('Could not launch $url');
+      }
     }
   }
 
@@ -54,7 +69,9 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
                 color: secondColor,
                 shape: RoundedRectangleBorder(
                   side: BorderSide(
-                      width: 1.0, style: BorderStyle.solid, color: Colors.white),
+                      width: 1.0,
+                      style: BorderStyle.solid,
+                      color: Colors.white),
                   borderRadius: BorderRadius.all(Radius.circular(16.0)),
                 ),
               ),
@@ -70,7 +87,8 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
                       fetchCandidates();
                     });
                   },
-                  items: positions.map<DropdownMenuItem<String>>((String value) {
+                  items:
+                      positions.map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Center(
@@ -125,8 +143,9 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CVInsightsPage(candidate: candidate)),
+          context,
+          MaterialPageRoute(
+              builder: (context) => CVInsightsPage(candidate: candidate)),
         );
       },
       child: Card(
@@ -188,6 +207,13 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
                     ),
                     actions: <Widget>[
                       TextButton(
+                        child: Text('Calll'),
+                        onPressed: () {
+                          _callCandidate(candidate.phoneNumber);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      TextButton(
                         child: Text('Close'),
                         onPressed: () {
                           Navigator.of(context).pop();
@@ -202,8 +228,9 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CVInsightsPage(candidate: candidate)),
-        );
+              MaterialPageRoute(
+                  builder: (context) => CVInsightsPage(candidate: candidate)),
+            );
           },
         ),
       ),

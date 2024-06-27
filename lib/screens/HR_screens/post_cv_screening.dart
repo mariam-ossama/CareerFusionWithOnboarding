@@ -119,6 +119,7 @@ class _PostCVScreeningPageState extends State<PostCVScreeningPage> {
 
       // Send request
       var response = await request.send();
+      print(response.statusCode);
 
       // Check response status
       if (response.statusCode == 200) {
@@ -172,6 +173,9 @@ class _PostCVScreeningPageState extends State<PostCVScreeningPage> {
         },
         body: requestBody,
       );
+
+      print(response.statusCode);
+      print(response.body);
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,5 +1,3 @@
-
-
 class CandidateTechnicatInterview {
   final int id;
   final int jobFormId;
@@ -7,6 +5,8 @@ class CandidateTechnicatInterview {
   final String userEmail;
   final String userFullName;
   final String filePath;
+  DateTime? technicalInterviewDate;
+  DateTime? physicalInterviewDate;
 
   CandidateTechnicatInterview({
     required this.id,
@@ -15,6 +15,8 @@ class CandidateTechnicatInterview {
     required this.userEmail,
     required this.userFullName,
     required this.filePath,
+    this.technicalInterviewDate,
+    this.physicalInterviewDate,
   });
 
   factory CandidateTechnicatInterview.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,12 @@ class CandidateTechnicatInterview {
       userEmail: json['userEmail'],
       userFullName: json['userFullName'],
       filePath: json['filePath'],
+      technicalInterviewDate: json['technicalInterviewDate'] != null
+          ? DateTime.parse(json['technicalInterviewDate'])
+          : null,
+      physicalInterviewDate: json['physicalInterviewDate'] != null
+          ? DateTime.parse(json['physicalInterviewDate'])
+          : null,
     );
   }
 }

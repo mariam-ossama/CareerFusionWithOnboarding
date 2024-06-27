@@ -28,11 +28,11 @@ class WelcomePage extends StatelessWidget {
                 child: Text(
                   'Welcome to',
                   style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      //fontStyle: FontStyle.italic,
-                      //fontFamily: appFont,
-                      ),
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    //fontStyle: FontStyle.italic,
+                    //fontFamily: appFont,
+                  ),
                 ),
               ),
               /*const SizedBox(width: 30,
@@ -41,11 +41,11 @@ class WelcomePage extends StatelessWidget {
                 child: Text(
                   'CareerFusion',
                   style: TextStyle(
-                      fontSize: 28,
-                      //fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.bold,
-                      //fontFamily: appFont,
-                      ),
+                    fontSize: 28,
+                    //fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.bold,
+                    //fontFamily: appFont,
+                  ),
                 ),
               ),
               const SizedBox(
@@ -103,7 +103,9 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -142,8 +144,10 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 10,),
-              Row(
+              SizedBox(
+                height: 10,
+              ),
+              /*Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
@@ -180,7 +184,7 @@ class WelcomePage extends StatelessWidget {
                     width: 20,
                   ),
                 ],
-              ),
+              ),*/
               const Spacer(
                 flex: 1,
               ),

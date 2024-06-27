@@ -6,7 +6,7 @@ import 'package:career_fusion/screens/HR_screens/post_telephone_interview_result
 import 'package:career_fusion/screens/HR_screens/post_telephone_interview_selection.dart';
 import 'package:career_fusion/screens/candidate_screens/candidate_account_screen.dart';
 import 'package:career_fusion/screens/authentication_screens/admin_login_screen.dart';
-import 'package:career_fusion/screens/admin_screen.dart';
+import 'package:career_fusion/screens/admin_screens/admin_screen.dart';
 import 'package:career_fusion/screens/candidate_screens/apply_to_open_position_screen.dart';
 import 'package:career_fusion/screens/candidate_screens/candidate_apply_jobs.dart';
 import 'package:career_fusion/screens/candidate_screens/candidate_open_positions_list.dart';
@@ -143,12 +143,9 @@ class CareerFusion extends StatelessWidget {
         //'PostCVScreeningPage':(context) => PostCVScreeningPage(),
         //'PostCVScreeningResult':(context) => PostCVScreeningResult(),
         //'PostTelephoneInterviewForm': (context) => PostTelephoneInterviewForm(),
-        'PostTelephoneInterviewSelectionProcessPage': (context) =>
-            PostTelephoneInterviewSelectionProcessPage(),
-        'PostTelephoneInterviewResultPage': (context) =>
-            PostTelephoneInterviewResultPage(),
-        'PostTechnicalInterviewSelectionProcessPage': (context) =>
-            PostTechnicalInterviewSelectionProcessPage(),
+        //'PostTelephoneInterviewSelectionProcessPage': (context) => PostTelephoneInterviewSelectionProcessPage(),
+        //'PostTelephoneInterviewResultPage': (context) => PostTelephoneInterviewResultPage(),
+        //'PostTechnicalInterviewSelectionProcessPage': (context) => PostTechnicalInterviewSelectionProcessPage(),
       },
       debugShowCheckedModeBanner: false,
       initialRoute: onboardingCompleted ? 'WelcomePage' : 'OnboardingScreen',
