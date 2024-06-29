@@ -15,14 +15,14 @@ class HRAccountPage extends StatelessWidget {
           'Home',
           style: TextStyle(
               //fontFamily: appFont,
-               color: Colors.white),
+              color: Colors.white),
         ),
         backgroundColor: mainAppColor,
       ),
       drawer: HRSideMenu(),
       body: Column(
         children: <Widget>[
-          const SizedBox(
+          /*const SizedBox(
             height: 100,
           ),
           const Text(
@@ -33,7 +33,7 @@ class HRAccountPage extends StatelessWidget {
               fontWeight: FontWeight.bold,
               //fontFamily: appFont,
             ),
-          ),
+          ),*/
           Expanded(
             child: GridView.count(
               crossAxisCount: 2,
@@ -63,17 +63,25 @@ class HRAccountPage extends StatelessWidget {
                   },
                 ),
                 MenuCard(
-                  title: 'Appraisals',
+                  title: 'Assessments',
                   iconData: Icons.quiz_rounded,
                   onTap: () {
-                    //Navigator.pushNamed(context, 'DashboardPage');
+                    Navigator.pushNamed(
+                        context, 'TechnicalInterviewModelsPage');
                   },
                 ),
                 MenuCard(
                   title: 'Job Anouncements',
-                  iconData: Icons.announcement,
+                  iconData: Icons.announcement_rounded,
                   onTap: () {
                     Navigator.pushNamed(context, 'HRPostsPage');
+                  },
+                ),
+                MenuCard(
+                  title: 'Appraisals',
+                  iconData: Icons.rate_review_rounded,
+                  onTap: () {
+                    Navigator.pushNamed(context, 'CompanyEmployeesPage');
                   },
                 ),
               ],
@@ -115,6 +123,7 @@ class MenuCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: cardsBackgroundColor,
       child: InkWell(
         onTap: onTap, // Use the passed onTap callback here
         child: Column(
@@ -122,7 +131,8 @@ class MenuCard extends StatelessWidget {
           children: <Widget>[
             Icon(
               iconData,
-              size: 40.0,
+              size: 50.0,
+              color: mainAppColor,
             ),
             Text(
               title,

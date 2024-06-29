@@ -137,10 +137,10 @@ class _AccountPageState extends State<AccountPage> {
                   iconColor: Colors.white,
                   fontColor: Colors.white,
                   color: mainAppColor,
-                  title: 'My Jobs',
-                  iconData: Icons.work_history,
+                  title: 'My Roadmap',
+                  iconData: Icons.timeline,
                   onTap: () {
-                    Navigator.pushNamed(context, 'AppliedJobsPage');
+                    Navigator.pushNamed(context, 'CandidateRoadmapPage');
                   },
                 ),
                 CustomMenuCard(
@@ -152,16 +152,6 @@ class _AccountPageState extends State<AccountPage> {
                   onTap: () {
                     Navigator.pushNamed(
                         context, 'CandidateOpenPositionsListPage');
-                  },
-                ),
-                CustomMenuCard(
-                  iconColor: Colors.white,
-                  fontColor: Colors.white,
-                  color: mainAppColor,
-                  title: 'My Roadmap',
-                  iconData: Icons.timeline,
-                  onTap: () {
-                    Navigator.pushNamed(context, 'CandidateRoadmapPage');
                   },
                 ),
               ],

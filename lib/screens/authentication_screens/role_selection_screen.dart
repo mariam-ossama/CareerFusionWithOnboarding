@@ -251,6 +251,9 @@ Future<void> _authorizeRoleAsAdmin(
       if (role == 'User') {
         Navigator.pushNamed(context, 'AccountPage');
       }
+      if (role == 'Admin') {
+        Navigator.pushNamed(context, 'AdminPage');
+      }
     } else {
       // User ID doesn't match
       print('Unauthorized user ID');

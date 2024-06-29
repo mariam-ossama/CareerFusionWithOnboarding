@@ -11,10 +11,12 @@ class CandidateTelephoneFormPage extends StatefulWidget {
   CandidateTelephoneFormPage({required this.jobTitle});
 
   @override
-  _CandidateTelephoneFormPageState createState() => _CandidateTelephoneFormPageState();
+  _CandidateTelephoneFormPageState createState() =>
+      _CandidateTelephoneFormPageState();
 }
 
-class _CandidateTelephoneFormPageState extends State<CandidateTelephoneFormPage> {
+class _CandidateTelephoneFormPageState
+    extends State<CandidateTelephoneFormPage> {
   String? selectedPosition;
   String? selectedForm;
 
@@ -29,7 +31,8 @@ class _CandidateTelephoneFormPageState extends State<CandidateTelephoneFormPage>
   }
 
   Future<void> fetchQuestions() async {
-    final url = '${baseUrl}/JobForm/getTelephoneInterviewQuestionsByJobTitle/${widget.jobTitle}';
+    final url =
+        '${baseUrl}/JobForm/getTelephoneInterviewQuestionsByJobTitle/${widget.jobTitle}';
     final response = await http.get(Uri.parse(url));
 
     print(response.body);
@@ -38,7 +41,9 @@ class _CandidateTelephoneFormPageState extends State<CandidateTelephoneFormPage>
     if (response.statusCode == 200) {
       try {
         final List<dynamic> data = json.decode(response.body);
-        final List<TelephoneInterviewQuestion> fetchedQuestions = data.map((item) => TelephoneInterviewQuestion.fromJson(item)).toList();
+        final List<TelephoneInterviewQuestion> fetchedQuestions = data
+            .map((item) => TelephoneInterviewQuestion.fromJson(item))
+            .toList();
         setState(() {
           questions = fetchedQuestions;
           isLoading = false;
@@ -88,28 +93,37 @@ class _CandidateTelephoneFormPageState extends State<CandidateTelephoneFormPage>
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    String editedQuestion = questions[index].question;
-                                    String editedAnswer = answers[questions[index].question] ?? '';
+                                    String editedQuestion =
+                                        questions[index].question;
+                                    String editedAnswer =
+                                        answers[questions[index].question] ??
+                                            '';
                                     return AlertDialog(
                                       title: Text('Edit Question'),
                                       content: Column(
                                         mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           TextField(
                                             onChanged: (value) {
                                               editedQuestion = value;
                                             },
-                                            controller: TextEditingController()..text = editedQuestion,
-                                            decoration: InputDecoration(labelText: 'Edit your question'),
+                                            controller: TextEditingController()
+                                              ..text = editedQuestion,
+                                            decoration: InputDecoration(
+                                                labelText:
+                                                    'Edit your question'),
                                           ),
                                           SizedBox(height: 10),
                                           TextField(
                                             onChanged: (value) {
                                               editedAnswer = value;
                                             },
-                                            controller: TextEditingController()..text = editedAnswer,
-                                            decoration: InputDecoration(labelText: 'Edit your answer'),
+                                            controller: TextEditingController()
+                                              ..text = editedAnswer,
+                                            decoration: InputDecoration(
+                                                labelText: 'Edit your answer'),
                                           ),
                                         ],
                                       ),
@@ -124,8 +138,10 @@ class _CandidateTelephoneFormPageState extends State<CandidateTelephoneFormPage>
                                           child: Text('Save'),
                                           onPressed: () {
                                             setState(() {
-                                              questions[index].question = editedQuestion;
-                                              answers[editedQuestion] = editedAnswer;
+                                              questions[index].question =
+                                                  editedQuestion;
+                                              answers[editedQuestion] =
+                                                  editedAnswer;
                                             });
                                             Navigator.of(context).pop();
                                           },
@@ -147,7 +163,7 @@ class _CandidateTelephoneFormPageState extends State<CandidateTelephoneFormPage>
                             ),
                           ],
                         ),
-                        subtitle: TextField(
+                        /*subtitle: TextField(
                           onChanged: (value) {
                             answers[questions[index].question] = value;
                           },
@@ -157,7 +173,7 @@ class _CandidateTelephoneFormPageState extends State<CandidateTelephoneFormPage>
                             hintStyle: TextStyle(color: Colors.grey),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
                           ),
-                        ),
+                        ),*/
                       );
                     },
                   ),
@@ -175,7 +191,8 @@ class _CandidateTelephoneFormPageState extends State<CandidateTelephoneFormPage>
                             onChanged: (value) {
                               newQuestion = value;
                             },
-                            decoration: InputDecoration(labelText: 'Enter your question'),
+                            decoration: InputDecoration(
+                                labelText: 'Enter your question'),
                           ),
                           actions: <Widget>[
                             TextButton(
@@ -188,7 +205,8 @@ class _CandidateTelephoneFormPageState extends State<CandidateTelephoneFormPage>
                               child: Text('Finish'),
                               onPressed: () {
                                 setState(() {
-                                  questions.add(TelephoneInterviewQuestion(0, newQuestion, widget.jobTitle));
+                                  questions.add(TelephoneInterviewQuestion(
+                                      0, newQuestion, widget.jobTitle));
                                 });
                                 Navigator.of(context).pop();
                               },
@@ -204,7 +222,8 @@ class _CandidateTelephoneFormPageState extends State<CandidateTelephoneFormPage>
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: secondColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
                     minimumSize: const Size(400, 60),
                   ),
                   child: Text(

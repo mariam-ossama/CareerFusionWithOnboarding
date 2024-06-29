@@ -58,7 +58,7 @@ class UserProfile {
           [],
       projectLinks: (json['projectLinks'] as List<dynamic>?)
               ?.map((x) => ProjectLink.fromJson(x as Map<String, dynamic>))
-              .toList() ?? 
+              .toList() ??
           [],
       courses: (json['courses'] as List<dynamic>?)
               ?.map((x) => Course.fromJson(x as Map<String, dynamic>))
@@ -102,7 +102,7 @@ class EditHRProfilePage extends StatefulWidget {
 }
 
 class _EditUserProfilePageState extends State<EditHRProfilePage> {
-  late UserProfile userProfile;
+  UserProfile? userProfile;
 
   // Controllers for the form fields
   final TextEditingController _usernameController = TextEditingController();
@@ -150,26 +150,26 @@ class _EditUserProfilePageState extends State<EditHRProfilePage> {
       setState(() {
         userProfile = profile;
         // Initialize controllers with fetched data
-        _usernameController.text = userProfile.username;
-        _titleController.text = userProfile.title ?? '';
-        _descriptionController.text = userProfile.description;
-        _addressController.text = userProfile.address;
-        _followersCountController.text = userProfile.followersCount.toString();
+        _usernameController.text = userProfile!.username;
+        _titleController.text = userProfile!.title ?? '';
+        _descriptionController.text = userProfile!.description;
+        _addressController.text = userProfile!.address;
+        _followersCountController.text = userProfile!.followersCount.toString();
 
         // Initialize the list of TextEditingControllers for dynamic fields
-        _skillControllers = userProfile.skills
+        _skillControllers = userProfile!.skills
             .map((skill) => TextEditingController(text: skill.skillName))
             .toList();
-        _courseControllers = userProfile.courses
+        _courseControllers = userProfile!.courses
             .map((course) => TextEditingController(text: course.courseName))
             .toList();
-        _projectControllers = userProfile.projects
+        _projectControllers = userProfile!.projects
             .map((project) => TextEditingController(text: project.projectName))
             .toList();
-        _siteLinkControllers = userProfile.siteLinks
+        _siteLinkControllers = userProfile!.siteLinks
             .map((siteLink) => TextEditingController(text: siteLink.linkUrl))
             .toList();
-        _projectControllers = userProfile.projectLinks
+        _projectControllers = userProfile!.projectLinks
             .map((projectLink) =>
                 TextEditingController(text: projectLink.projectName))
             .toList();
@@ -183,10 +183,10 @@ class _EditUserProfilePageState extends State<EditHRProfilePage> {
   void _addSkillField() {
     //var newSkillId = userProfile.skills.length + 1;
     setState(() {
-      var newSkillId = userProfile.skills.length + 1;
+      var newSkillId = userProfile!.skills.length + 1;
       _skillNameControllers.add(skillNameController);
       _skillLevelControllers.add(skillLevelController);
-      userProfile.skills.add(Skill(
+      userProfile!.skills.add(Skill(
         skillId: newSkillId,
         skillName: skillNameController.text,
         skillLevel: skillLevelController.text,
@@ -198,8 +198,8 @@ class _EditUserProfilePageState extends State<EditHRProfilePage> {
 
   void _addProjectField() {
     setState(() {
-      var newProjectId = userProfile.projects.length + 1;
-      userProfile.projects.add(Projects(
+      var newProjectId = userProfile!.projects.length + 1;
+      userProfile!.projects.add(Projects(
         projectId: newProjectId,
         projectName: projectNameController.text,
         projectURL: projectUrlController.text,
@@ -210,21 +210,21 @@ class _EditUserProfilePageState extends State<EditHRProfilePage> {
   }
 
   void _addCourseField() {
-  setState(() {
-    var newCourseId = userProfile.courses.length + 1;
-    userProfile.courses.add(Course(
-      courseId: newCourseId,
-      courseName: courseNameController.text,
-    ));
-     _courseNameControllers.add(TextEditingController());
-  });
-}
+    setState(() {
+      var newCourseId = userProfile!.courses.length + 1;
+      userProfile!.courses.add(Course(
+        courseId: newCourseId,
+        courseName: courseNameController.text,
+      ));
+      _courseNameControllers.add(TextEditingController());
+    });
+  }
 
   void _addSiteLinkField() {
     setState(() {
       // Add a new SiteLink object
-      userProfile.siteLinks.add(SiteLink(
-        siteLinkId: userProfile.siteLinks.length +
+      userProfile!.siteLinks.add(SiteLink(
+        siteLinkId: userProfile!.siteLinks.length +
             1, // Assuming siteLinkId is the index+1
         linkUrl: '',
       ));
@@ -247,34 +247,34 @@ class _EditUserProfilePageState extends State<EditHRProfilePage> {
           .text), // Assuming you have a controller for this
       'description': _descriptionController.text,
       'address': _addressController.text,
-      'projects': userProfile.projects.map((project) {
+      'projects': userProfile!.projects.map((project) {
         return {
           'projectId': project.projectId,
           'projectName': project.projectName,
           'projectURL': project.projectURL,
         };
       }).toList(),
-      'projectLinks': userProfile.projectLinks.map((projectLink) {
+      'projectLinks': userProfile!.projectLinks.map((projectLink) {
         return {
           'projectLinkId': projectLink.projectLinkId,
           'projectName': projectLink.projectName,
           'projectUrl': projectLink.projectUrl,
         };
       }).toList(),
-      'courses': userProfile.courses.map((course) {
+      'courses': userProfile!.courses.map((course) {
         return {
           'courseId': course.courseId,
           'courseName': course.courseName,
         };
       }).toList(),
-      'skills': userProfile.skills.map((skill) {
+      'skills': userProfile!.skills.map((skill) {
         return {
           'skillId': skill.skillId,
           'skillName': skill.skillName,
           'skillLevel': skill.skillLevel,
         };
       }).toList(),
-      'siteLinks': userProfile.siteLinks.map((siteLink) {
+      'siteLinks': userProfile!.siteLinks.map((siteLink) {
         return {
           'linkId': siteLink.siteLinkId,
           'linkUrl': siteLink.linkUrl,
@@ -284,8 +284,7 @@ class _EditUserProfilePageState extends State<EditHRProfilePage> {
 
     try {
       final response = await http.put(
-        Uri.parse(
-            '${baseUrl}/UserProfile/$userId'),
+        Uri.parse('${baseUrl}/UserProfile/$userId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -296,9 +295,9 @@ class _EditUserProfilePageState extends State<EditHRProfilePage> {
         // If the server did return a 200 OK response,
         // then parse the JSON.
         Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HRProfilePage()),
-      );
+          context,
+          MaterialPageRoute(builder: (context) => HRProfilePage()),
+        );
         print('User profile updated successfully.');
       } else {
         // If the server did not return a 200 OK response,
@@ -322,10 +321,11 @@ class _EditUserProfilePageState extends State<EditHRProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Profile',
-        style: TextStyle(
+        title: Text(
+          'Edit Profile',
+          style: TextStyle(
               //fontFamily: appFont,
-               color: Colors.white),
+              color: Colors.white),
         ),
         backgroundColor: mainAppColor,
         actions: [
@@ -338,7 +338,7 @@ class _EditUserProfilePageState extends State<EditHRProfilePage> {
         ],
       ),
       body: userProfile == null
-          ? CircularProgressIndicator()
+          ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),

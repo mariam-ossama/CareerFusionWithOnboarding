@@ -170,7 +170,7 @@ class _TelephonInterviewResultPageState
                   child: Container(
                     width: 370,
                     decoration: ShapeDecoration(
-                      color: secondColor!, // Replace with your app's color
+                      color: secondColor, // Replace with your app's color
                       shape: RoundedRectangleBorder(
                         side: BorderSide(
                           width: 1.0,

@@ -11,11 +11,11 @@ class JobSearchPage extends StatefulWidget {
 
 class _JobSearchPageState extends State<JobSearchPage> {
   final String graphicImagePath =
-      'assets/images/WhatsApp Image 2023-11-26 at 20.32.41.jpeg'; 
-      TextEditingController searchJobTitle = TextEditingController();
-      TextEditingController searchLocation = TextEditingController();
+      'assets/images/WhatsApp Image 2023-11-26 at 20.32.41.jpeg';
+  TextEditingController searchJobTitle = TextEditingController();
+  TextEditingController searchLocation = TextEditingController();
 
- // Replace with your image asset path
+  // Replace with your image asset path
   void _onSearchItemTap(String category) {
     // You can navigate to a new screen or perform other actions based on the category
     print('Tapped on $category');
@@ -46,8 +46,9 @@ class _JobSearchPageState extends State<JobSearchPage> {
     // Add more jobs as needed
   ];
 
-   Future<void> _searchJobsByTitle() async {
-    final url = Uri.parse('http://10.0.2.2:5266/api/JobSearch/SearchByJobTitle?keyword=${searchJobTitle.text}');
+  Future<void> _searchJobsByTitle() async {
+    final url = Uri.parse(
+        '${baseUrl}/JobSearch/SearchByJobTitle?keyword=${searchJobTitle.text}');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -68,8 +69,9 @@ class _JobSearchPageState extends State<JobSearchPage> {
   }
 
   Future<void> _searchJobsByLocation() async {
-    final url = Uri.parse('http://10.0.2.2:5266/api/JobSearch/SearchTitleWithLocation?keyword=${searchJobTitle.text}&location=${searchLocation.text}');
-    
+    final url = Uri.parse(
+        '${baseUrl}/JobSearch/SearchTitleWithLocation?keyword=${searchJobTitle.text}&location=${searchLocation.text}');
+
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -88,8 +90,9 @@ class _JobSearchPageState extends State<JobSearchPage> {
       appBar: AppBar(
         title: Text(
           'Job Search',
-          style: TextStyle(//fontFamily: appFont,
-           color: Colors.white),
+          style: TextStyle(
+              //fontFamily: appFont,
+              color: Colors.white),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -136,7 +139,8 @@ class _JobSearchPageState extends State<JobSearchPage> {
                   hintText: 'Enter Job Title',
                   suffixIcon: IconButton(
                     icon: Icon(Icons.search),
-                    onPressed: _searchJobsByTitle,),
+                    onPressed: _searchJobsByTitle,
+                  ),
                   border: InputBorder.none,
                 ),
                 onChanged: (value) {
@@ -165,7 +169,8 @@ class _JobSearchPageState extends State<JobSearchPage> {
                 hintText: 'Enter Job Location',
                 suffixIcon: IconButton(
                   icon: Icon(Icons.search),
-                  onPressed: _searchJobsByLocation,),
+                  onPressed: _searchJobsByLocation,
+                ),
                 border: InputBorder.none,
               ),
               onChanged: (value) {
@@ -250,51 +255,10 @@ class _JobSearchPageState extends State<JobSearchPage> {
                       child: Text(
                         'Location',
                         style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            //fontFamily: appFont
-                            ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: 150,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: secondColor),
-                    child: const Center(
-                        child: Text(
-                      'Industry',
-                      style: TextStyle(
-                          fontSize: 18, color: mainAppColor, //fontFamily: appFont
-                          ),
-                    )),
-                  ),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                GestureDetector(
-                  onTap: (){},
-                  child: Container(
-                    width: 150,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: mainAppColor),
-                    child: const Center(
-                      child: Text(
-                        'Experience Level',
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            //fontFamily: appFont
-                            ),
+                          fontSize: 18,
+                          color: Colors.white,
+                          //fontFamily: appFont
+                        ),
                       ),
                     ),
                   ),
@@ -313,10 +277,32 @@ class _JobSearchPageState extends State<JobSearchPage> {
                       child: Text(
                         'Job Title',
                         style: TextStyle(
-                            fontSize: 18,
-                            color: mainAppColor,
-                            //fontFamily: appFont
-                            ),
+                          fontSize: 18,
+                          color: mainAppColor,
+                          //fontFamily: appFont
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                /*SizedBox(
+                  width: 10,
+                ),
+                GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                    width: 150,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: mainAppColor),
+                    child: const Center(
+                      child: Text(
+                        'Experience Level',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          //fontFamily: appFont
+                        ),
                       ),
                     ),
                   ),
@@ -324,6 +310,10 @@ class _JobSearchPageState extends State<JobSearchPage> {
                 SizedBox(
                   width: 10,
                 ),
+
+                SizedBox(
+                  width: 10,
+                ),*/
                 /*Container(
                   width: 150,
                   decoration: BoxDecoration(
@@ -382,7 +372,7 @@ class SearchedJobCard extends StatelessWidget {
       onTap: onTap,
       child: Card(
         shadowColor: Colors.indigo,
-        color: Colors.grey[200],
+        color: cardsBackgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
         ),
@@ -394,10 +384,13 @@ class SearchedJobCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Image.asset(
-                    job.logoUrl,
-                    width: 50,
-                    height: 50,
+                  CircleAvatar(
+                    radius: 35,
+                    child: Image.asset(
+                      job.logoUrl,
+                      width: 50,
+                      height: 50,
+                    ),
                   ),
                   SizedBox(width: 16.0),
                   Expanded(
@@ -415,14 +408,14 @@ class SearchedJobCard extends StatelessWidget {
                         Text(
                           job.location,
                           style: TextStyle(
-                            //fontFamily: appFont,
-                          ),
+                              //fontFamily: appFont,
+                              ),
                         ),
                         Text(
                           job.type,
                           style: TextStyle(
-                            //fontFamily: appFont,
-                          ),
+                              //fontFamily: appFont,
+                              ),
                         ),
                       ],
                     ),
@@ -461,7 +454,7 @@ class Job {
       jobTitle: json['jobTitle'] ?? 'job Title',
       location: json['jobLocation'] ?? 'job Location',
       type: json['jobType'] ?? 'Job type',
-      logoUrl: json['logoUrl'] ?? 'assets/images/Valeo_Logo.svg.png',
+      logoUrl: json['logoUrl'] ?? 'assets/images/111.avif',
     );
   }
 }

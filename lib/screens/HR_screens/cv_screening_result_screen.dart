@@ -1,10 +1,12 @@
 import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/models/candidate_cv_screening.dart';
+import 'package:career_fusion/models/open_position.dart';
 import 'package:career_fusion/screens/HR_screens/cv_insights_screen.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 import 'package:url_launcher/url_launcher.dart';
@@ -16,12 +18,20 @@ class CVScreeningResultPage extends StatefulWidget {
 
 class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
   String? selectedPosition; // Make this nullable
-  final List<String> positions = ['Position 1', 'Position 2', 'Position 3'];
+  List<Position> positions = [];
   List<CandidateCVScreening> candidates = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPositions();
+  }
 
   Future<void> fetchCandidates() async {
     final response = await http.get(Uri.parse(
         'https://flask-deployment-hev4.onrender.com/get-matched-cvs'));
+    print(response.statusCode);
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
       setState(() {
@@ -41,6 +51,40 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
       } else {
         print('Could not launch $url');
       }
+    }
+  }
+
+  Future<void> fetchPositions() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
+    if (userId == null) {
+      print('User ID not found');
+      return;
+    }
+
+    final url = '${baseUrl}/jobform/OpenPos/$userId';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      try {
+        final List<dynamic> data = json.decode(response.body);
+        print('Received positions data: $data'); // Debug print
+        final List<Position> fetchedPositions =
+            data.map((item) => Position.fromJson(item)).toList();
+        print('Parsed positions: $fetchedPositions'); // Debug print
+        setState(() {
+          positions = fetchedPositions;
+          isLoading = false;
+        });
+      } catch (e) {
+        print('Error parsing positions data: $e');
+      }
+    } else {
+      print('Failed to fetch positions: ${response.statusCode}');
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -87,13 +131,13 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
                       fetchCandidates();
                     });
                   },
-                  items:
-                      positions.map<DropdownMenuItem<String>>((String value) {
+                  items: positions
+                      .map<DropdownMenuItem<String>>((Position position) {
                     return DropdownMenuItem<String>(
-                      value: value,
+                      value: position.jobId.toString(),
                       child: Center(
                         child: Text(
-                          value,
+                          position.title,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,

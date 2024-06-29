@@ -1,3 +1,4 @@
+import 'package:career_fusion/screens/HR_screens/company_employees_screen.dart';
 import 'package:career_fusion/screens/HR_screens/post_cv_screening.dart';
 import 'package:career_fusion/screens/HR_screens/post_cv_screening_result.dart';
 import 'package:career_fusion/screens/HR_screens/post_technical_interview_selection.dart';
@@ -140,12 +141,7 @@ class CareerFusion extends StatelessWidget {
             CandidateOpenPositionsListPage(),
         'HRPostsPage': (context) => HRPostsPage(),
         'CandidateRoadmapPage': (context) => CandidateRoadmapPage(),
-        //'PostCVScreeningPage':(context) => PostCVScreeningPage(),
-        //'PostCVScreeningResult':(context) => PostCVScreeningResult(),
-        //'PostTelephoneInterviewForm': (context) => PostTelephoneInterviewForm(),
-        //'PostTelephoneInterviewSelectionProcessPage': (context) => PostTelephoneInterviewSelectionProcessPage(),
-        //'PostTelephoneInterviewResultPage': (context) => PostTelephoneInterviewResultPage(),
-        //'PostTechnicalInterviewSelectionProcessPage': (context) => PostTechnicalInterviewSelectionProcessPage(),
+        'CompanyEmployeesPage': (context) => CompanyEmployeesPage(),
       },
       debugShowCheckedModeBanner: false,
       initialRoute: onboardingCompleted ? 'WelcomePage' : 'OnboardingScreen',

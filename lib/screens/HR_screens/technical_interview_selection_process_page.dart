@@ -24,6 +24,8 @@ class _TechnicalInterviewCandidatesPageState
   List<CandidateTechnicatInterview> candidates = [];
   DateTime? selectedTechnicalInterviewDate;
   DateTime? selectedPhysicalInterviewDate;
+  bool selectAll = false;
+  Set<int> selectedCandidates = {};
 
   @override
   void initState() {
@@ -306,6 +308,87 @@ class _TechnicalInterviewCandidatesPageState
     }
   }
 
+  Future<void> toggleTechnicalInterview(
+      int candidateId, String positionId, bool passed, String hrMessage) async {
+    final url = Uri.parse(
+        '${baseUrl}/OpenPosCV/$positionId/$candidateId/toggle-technical-interview');
+    final body = jsonEncode({
+      'passed': passed,
+      'hrMessage': hrMessage,
+    });
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      );
+
+      print(response.body);
+      print(response.statusCode);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        if (responseData['success'] == true) {
+          print('Technical interview status updated successfully');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Candidate is set as passed successfully.')),
+          );
+        } else {
+          print('Failed to update technical interview status');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to set candidate as passed')),
+          );
+        }
+      } else {
+        print(
+            'Failed to update technical interview status: ${response.reasonPhrase}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Failed to update technical interview status: ${response.reasonPhrase}')),
+        );
+      }
+    } catch (e) {
+      print('Error updating technical interview status: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Error updating technical interview status: $e')),
+      );
+    }
+  }
+
+  Future<void> showHrMessageDialog(
+      BuildContext context, int candidateId, String positionId) async {
+    String hrMessage = '';
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('HR Message'),
+          content: TextField(
+            onChanged: (value) {
+              hrMessage = value;
+            },
+            decoration: InputDecoration(hintText: "Enter HR message"),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Submit'),
+              onPressed: () async {
+                await toggleTechnicalInterview(
+                    candidateId, positionId, true, hrMessage);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -375,6 +458,24 @@ class _TechnicalInterviewCandidatesPageState
               ),
             ),
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text("Select All"),
+              Checkbox(
+                value: selectAll,
+                onChanged: (bool? value) {
+                  setState(() {
+                    selectAll = value ?? false;
+                    selectedCandidates.clear();
+                    if (selectAll) {
+                      selectedCandidates.addAll(candidates.map((c) => c.id));
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
           if (selectedPositionId !=
               null) // Show candidates only if a position is selected
             Expanded(
@@ -382,6 +483,8 @@ class _TechnicalInterviewCandidatesPageState
                 itemCount: candidates.length,
                 itemBuilder: (context, index) {
                   String candidateName = candidates[index].userFullName;
+                  final isSelected =
+                      selectedCandidates.contains(candidates[index].id);
                   String technicalInterview =
                       candidates[index].technicalInterviewDate != null
                           ? candidates[index].technicalInterviewDate!.toString()
@@ -401,12 +504,37 @@ class _TechnicalInterviewCandidatesPageState
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                candidateName,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              Row(
+                                children: [
+                                  Checkbox(
+                                    value: isSelected,
+                                    onChanged: (bool? value) async {
+                                      setState(() {
+                                        if (value != null && value) {
+                                          selectedCandidates
+                                              .add(candidates[index].id);
+                                        } else {
+                                          selectedCandidates
+                                              .remove(candidates[index].id);
+                                        }
+                                      });
+                                      if (value == true) {
+                                        // Show HR message dialog when checkbox is checked
+                                        await showHrMessageDialog(
+                                            context,
+                                            candidates[index].id,
+                                            selectedPositionId!);
+                                      }
+                                    },
+                                  ),
+                                  Text(
+                                    candidateName,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                               Row(
                                 children: [
