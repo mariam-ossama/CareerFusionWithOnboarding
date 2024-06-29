@@ -11,7 +11,7 @@ class ExistingCVsPage extends StatefulWidget {
 }
 
 class _ExistingCVsPageState extends State<ExistingCVsPage> {
-  Position? selectedPosition;
+  String? selectedPosition;
   List<Position> positions = [];
   Map<String, List<String>> positionCVs = {};
 
@@ -56,16 +56,22 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
 
   Future<void> _fetchCVsByTitle(String jobTitle) async {
     final apiUrl = '${baseUrl}/CVSearch/cvs-by-title/$jobTitle';
+    print('Fetching CVs from: $apiUrl with jobTitle: $jobTitle');
 
     final response = await http.get(Uri.parse(apiUrl));
-    print(response.body);
-    print(response.statusCode);
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       setState(() {
         positionCVs[jobTitle] = data.cast<String>();
         print(positionCVs);
+      });
+    } else if (response.statusCode == 404) {
+      print('No CVs found for job title: $jobTitle');
+      setState(() {
+        positionCVs[jobTitle] = [];
       });
     } else {
       throw Exception('Failed to load CVs for the selected job title');
@@ -75,7 +81,7 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
   @override
   Widget build(BuildContext context) {
     List<String>? cvs =
-        selectedPosition != null ? positionCVs[selectedPosition!.title] : [];
+        selectedPosition != null ? positionCVs[selectedPosition!] : [];
 
     return Scaffold(
       appBar: AppBar(
@@ -110,15 +116,16 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
               child: DropdownButton<String>(
                 iconEnabledColor: Colors.white,
                 isExpanded: true,
-                value: selectedPosition?.jobId.toString(),
+                value: selectedPosition,
                 onChanged: (String? newValue) {
                   if (newValue != null) {
                     setState(() {
-                      selectedPosition = positions.firstWhere(
-                        (position) => position.jobId == newValue,
-                      );
+                      selectedPosition = newValue;
                       if (selectedPosition != null) {
-                        _fetchCVsByTitle(selectedPosition!.title);
+                        print('Selected job title: $selectedPosition');
+                        _fetchCVsByTitle(selectedPosition!);
+                      } else {
+                        print('No matching position found');
                       }
                     });
                   }
@@ -126,7 +133,7 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
                 items: positions
                     .map<DropdownMenuItem<String>>((Position position) {
                   return DropdownMenuItem<String>(
-                    value: position.jobId.toString(),
+                    value: position.title,
                     child: Center(
                       child: Text(
                         position.title,
@@ -155,7 +162,7 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: cvs!.length,
+              itemCount: cvs?.length ?? 0,
               itemBuilder: (context, index) {
                 return Card(
                   shadowColor: Colors.grey[500],
@@ -169,7 +176,7 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
                       color: mainAppColor,
                     ),
                     title: Text(
-                      cvs[index],
+                      cvs![index],
                       style: TextStyle(
                           fontFamily: appFont,
                           fontSize: 14,

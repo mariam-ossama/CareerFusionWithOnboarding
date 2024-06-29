@@ -105,28 +105,6 @@ class _HRPostsPageState extends State<HRPostsPage> {
                             style: TextStyle(fontSize: 14.0),
                           ),
                           SizedBox(height: 8.0),
-                          if (post.imageUrls != null &&
-                              post.imageUrls!.isNotEmpty) ...[
-                            for (var imageUrl in post.imageUrls!)
-                              if (imageUrl != 'Error fetching image URL') ...[
-                                SizedBox(height: 10),
-                                Center(
-                                  child: SizedBox(
-                                    width: 300,
-                                    height: 300,
-                                    child: Image.network(
-                                      imageUrl,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return Text('Image not available');
-                                      },
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                              ],
-                          ],
                           if (post.fileUrls != null &&
                               post.fileUrls!.isNotEmpty) ...[
                             for (var fileUrl in post.fileUrls!)
@@ -164,6 +142,28 @@ class _HRPostsPageState extends State<HRPostsPage> {
                                     ),
                                   ),
                                 )
+                              ],
+                          ],
+                          if (post.imageUrls != null &&
+                              post.imageUrls!.isNotEmpty) ...[
+                            for (var imageUrl in post.imageUrls!)
+                              if (imageUrl != 'Error fetching image URL') ...[
+                                SizedBox(height: 10),
+                                Center(
+                                  child: SizedBox(
+                                    width: 300,
+                                    height: 300,
+                                    child: Image.network(
+                                      imageUrl,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Text('Image not available');
+                                      },
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 10),
                               ],
                           ],
                           Center(

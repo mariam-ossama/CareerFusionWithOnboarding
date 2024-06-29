@@ -7,8 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 class TelephoneInterviewSelectionPage extends StatefulWidget {
+  
   @override
   _TelephoneInterviewSelectionPageState createState() =>
       _TelephoneInterviewSelectionPageState();
@@ -16,6 +19,7 @@ class TelephoneInterviewSelectionPage extends StatefulWidget {
 
 class _TelephoneInterviewSelectionPageState
     extends State<TelephoneInterviewSelectionPage> {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   String? selectedPosition; // Selected position from dropdown menu
   List<Position> positions = []; // List to store fetched positions
   bool isLoading = true; // To show loading indicator while fetching data
@@ -33,6 +37,32 @@ class _TelephoneInterviewSelectionPageState
   void initState() {
     super.initState();
     fetchPositions();
+    var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    _connectToSignalR();
+  }
+
+  Future<void> _connectToSignalR() async {
+    final connection = HubConnectionBuilder()
+        .withUrl("http://localhost:5266/notificationHub")
+        .build();
+
+    connection.on("ReceiveNotification", (message) {
+      _showNotification('notification');
+    });
+
+    await connection.start();
+  }
+
+  Future<void> _showNotification(String message) async {
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'caree_fusion@2024', 'CareerFusion',
+        importance: Importance.max, priority: Priority.high, ticker: 'ticker');
+    var platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0, 'New Notification', message, platformChannelSpecifics,
+        payload: 'item id 2');
   }
 
   Future<void> fetchPositions() async {

@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/models/employee.dart';
-import 'package:career_fusion/screens/HR_screens/setting_company_goals_screen.dart';
+import 'package:career_fusion/models/goal.dart';
+import 'package:career_fusion/screens/HR_screens/employee_evaluation_form_screen.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
 import 'package:career_fusion/widgets/custom_employee_card.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,8 @@ class _CompanyEmployeesPageState extends State<CompanyEmployeesPage> {
 
       final url = '${baseUrl}/OpenPosCV/$userId/technical-interview-passed';
       final response = await http.get(Uri.parse(url));
+      print(response.body);
+      print(response.statusCode);
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
@@ -184,7 +187,7 @@ class _CompanyEmployeesPageState extends State<CompanyEmployeesPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => SettingGoalsPage(),
+                            builder: (context) => EvaluationFormPage( employee: employees[index],),
                           ),
                         );
                       },
@@ -204,7 +207,7 @@ class _CompanyEmployeesPageState extends State<CompanyEmployeesPage> {
               _buildQuestionForm(),
               _buildAddQuestionForm(),
               // Save button
-              Center(child: _buildSaveButton()),
+              //Center(child: _buildSaveButton()),
             ],
           );
   }
@@ -231,7 +234,7 @@ class _CompanyEmployeesPageState extends State<CompanyEmployeesPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButton<int>(
-                    value: goal.score,
+                    value: goal.id,
                     items: List.generate(10, (index) => index + 1)
                         .map<DropdownMenuItem<int>>((int value) {
                       return DropdownMenuItem<int>(
@@ -312,8 +315,17 @@ class _CompanyEmployeesPageState extends State<CompanyEmployeesPage> {
   Widget _buildAddQuestionForm() {
     return Column(
       children: [
-        CustomButton(
-          text: 'Add Goal',
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+        backgroundColor: secondColor, // Background color
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15), // BorderRadius
+        ),
+        minimumSize: const Size(400, 60), // Button size
+      ),
+          child: Text('Add Question',
+          style: TextStyle(color: mainAppColor, fontSize: 20),),
+          
           onPressed: () {
             showDialog(
               context: context,

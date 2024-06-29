@@ -28,8 +28,6 @@ class _TecnicalInterviewResultPageState
   List<CandidateTechnicatInterview> candidates = [];
   String? excelDownloadUrl;
 
-  // Map to store candidate status: promising, maybe, disqualified
-
   @override
   void initState() {
     super.initState();
@@ -50,7 +48,6 @@ class _TecnicalInterviewResultPageState
               .toList();
         });
 
-        // Fetch technical and physical interview dates for each candidate
         await fetchInterviewDates(positionId);
       } else {
         print('Failed to fetch candidates: ${response.reasonPhrase}');
@@ -252,7 +249,6 @@ class _TecnicalInterviewResultPageState
         try {
           final bytes = response.bodyBytes;
 
-          // Use path_provider to get the external storage directory
           Directory? directory = await getExternalStorageDirectory();
           if (directory != null) {
             final documentsPath = '${directory.path}/Documents';
@@ -290,8 +286,8 @@ class _TecnicalInterviewResultPageState
         title: Text(
           'Technical Interview Result',
           style: TextStyle(
-              //fontFamily: appFont,
-              color: Colors.white),
+            color: Colors.white,
+          ),
         ),
         backgroundColor: mainAppColor,
       ),
@@ -418,7 +414,11 @@ class _TecnicalInterviewResultPageState
           CustomButton(
             text: 'Export to excel',
             onPressed: () {
-              //exportToExcel(selectedPositionId!);
+              if (selectedPositionId != null && selectedPositionId!.isNotEmpty) {
+                exportToExcel(int.parse(selectedPositionId!));
+              } else {
+                print('No position selected');
+              }
             },
           ),
           SizedBox(height: 5),

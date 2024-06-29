@@ -1,4 +1,5 @@
-import 'package:career_fusion/screens/HR_screens/company_employees_screen.dart';
+import 'package:career_fusion/screens/HR_screens/appraisal_screen.dart';
+import 'package:career_fusion/screens/HR_screens/appraisal_screen.dart';
 import 'package:career_fusion/screens/HR_screens/post_cv_screening.dart';
 import 'package:career_fusion/screens/HR_screens/post_cv_screening_result.dart';
 import 'package:career_fusion/screens/HR_screens/post_technical_interview_selection.dart';
