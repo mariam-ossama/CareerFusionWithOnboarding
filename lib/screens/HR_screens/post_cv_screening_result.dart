@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/models/candidate_cv_screening.dart';
@@ -18,13 +21,13 @@ class PostCVScreeningResult extends StatefulWidget {
 }
 
 class _PostCVScreeningResultState extends State<PostCVScreeningResult> {
-  String? selectedPosition;
+  /*String? selectedPosition;
   final List<String> positions = ['Position 1', 'Position 2', 'Position 3'];
   Map<String, List<String>> positionPDFs = {
     'Position 1': ['CV1.pdf', 'CV2.pdf'],
     'Position 2': ['CV3.pdf', 'CV4.pdf'],
     'Position 3': ['CV5.pdf', 'CV6.pdf'],
-  };
+  };*/
 
   List<CandidateCVScreening> screenedCVs = [];
 
@@ -173,6 +176,48 @@ class _PostCVScreeningResultState extends State<PostCVScreeningResult> {
     );
   }
 
+  Future<void> downloadExcel() async {
+    // Request permission to access storage
+    var status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      try {
+        // Get the directory to save the file
+        Directory? downloadsDirectory = await getExternalStorageDirectory();
+
+        if (downloadsDirectory != null) {
+          String filePath = '${downloadsDirectory.path}/matched_cvs.xlsx';
+          final response = await http.get(Uri.parse('https://cv-screening.onrender.com/export-to-excel'));
+          print(filePath);
+
+          print(response.statusCode);
+          print(response.body);
+
+          if (response.statusCode == 200) {
+            File file = File(filePath);
+            await file.writeAsBytes(response.bodyBytes);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Excel file downloaded successfully')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to download Excel file')),
+            );
+          }
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error downloading Excel file: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Storage permission denied')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -188,7 +233,7 @@ class _PostCVScreeningResultState extends State<PostCVScreeningResult> {
       body: Column(
         children: [
           SizedBox(height: 10),
-          Padding(
+          /*Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
               width: 370,
@@ -242,7 +287,7 @@ class _PostCVScreeningResultState extends State<PostCVScreeningResult> {
                 ),
               ),
             ),
-          ),
+          ),*/
           Expanded(
             child: ListView.builder(
               itemCount: screenedCVs.length,
@@ -252,13 +297,14 @@ class _PostCVScreeningResultState extends State<PostCVScreeningResult> {
               },
             ),
           ),
-          /*CustomButton(
+          CustomButton(
             text: 'Export to excel',
             onPressed: () {
               // TODO: Implement export to Excel functionality
+              downloadExcel();
             },
           ),
-          SizedBox(height: 5),*/
+          SizedBox(height: 5),
         ],
       ),
     );

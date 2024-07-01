@@ -3,12 +3,15 @@ import 'package:career_fusion/models/candidate_cv_screening.dart';
 import 'package:career_fusion/models/open_position.dart';
 import 'package:career_fusion/screens/HR_screens/cv_insights_screen.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CVScreeningResultPage extends StatefulWidget {
@@ -32,6 +35,7 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
     final response = await http.get(Uri.parse(
         'https://flask-deployment-hev4.onrender.com/get-matched-cvs'));
     print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       List<dynamic> data = json.decode(response.body);
       setState(() {
@@ -85,6 +89,50 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> downloadExcel() async {
+    // Request permission to access storage
+    var status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      try {
+        // Get the directory to save the file
+        Directory? downloadsDirectory = await getExternalStorageDirectory();
+
+        if (downloadsDirectory != null) {
+          String filePath = '${downloadsDirectory.path}/matched_cvs.xlsx';
+          final response = await http.get(Uri.parse('https://cv-screening.onrender.com/export-to-excel'));
+          print(filePath);
+
+          print(response.statusCode);
+          print(response.body);
+
+          if (response.statusCode == 200) {
+            File file = File(filePath);
+            await file.writeAsBytes(response.bodyBytes);
+            print(response.bodyBytes);
+            print(response.body);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Excel file downloaded successfully')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to download Excel file')),
+            );
+          }
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error downloading Excel file: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Storage permission denied')),
+      );
     }
   }
 
@@ -173,9 +221,7 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
           if (hasCandidates)
             CustomButton(
               text: 'Export to excel',
-              onPressed: () {
-                // TODO: Implement export to Excel functionality
-              },
+              onPressed: downloadExcel,
             ),
           SizedBox(height: 5),
         ],
@@ -251,7 +297,7 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
                     ),
                     actions: <Widget>[
                       TextButton(
-                        child: Text('Calll'),
+                        child: Text('Call'),
                         onPressed: () {
                           _callCandidate(candidate.phoneNumber);
                           Navigator.of(context).pop();

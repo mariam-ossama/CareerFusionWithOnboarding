@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/models/open_position.dart';
 import 'package:career_fusion/screens/HR_screens/candidate_telehpone_form.dart';
-import 'package:career_fusion/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +19,7 @@ class TelephoneInterviewSelectionPage extends StatefulWidget {
 class _TelephoneInterviewSelectionPageState
     extends State<TelephoneInterviewSelectionPage> {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  HubConnection? connection;
   String? selectedPosition; // Selected position from dropdown menu
   List<Position> positions = []; // List to store fetched positions
   bool isLoading = true; // To show loading indicator while fetching data
@@ -37,33 +37,46 @@ class _TelephoneInterviewSelectionPageState
   void initState() {
     super.initState();
     fetchPositions();
+     initializeSignalR();
+    initializeNotifications();
+  }
+
+  void initializeSignalR() async {
+    connection = HubConnectionBuilder()
+        .withUrl("http://10.0.2.2:5266/notificationHub")
+        .build();
+
+    await connection!.start();
+    print('SignalR Connected.');
+
+    connection!.on("ReceiveNotification", (message) {
+      _showNotification(message.toString());
+    });
+  }
+
+  void initializeNotifications() {
     var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
     var initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
-    _connectToSignalR();
-  }
-
-  Future<void> _connectToSignalR() async {
-    final connection = HubConnectionBuilder()
-        .withUrl("http://localhost:5266/notificationHub")
-        .build();
-
-    connection.on("ReceiveNotification", (message) {
-      _showNotification('notification');
-    });
-
-    await connection.start();
   }
 
   Future<void> _showNotification(String message) async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        'caree_fusion@2024', 'CareerFusion',
+        'career_fusion@2024', 'CareerFusion',
         importance: Importance.max, priority: Priority.high, ticker: 'ticker');
     var platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
         0, 'New Notification', message, platformChannelSpecifics,
         payload: 'item id 2');
+        print(message);
   }
+
+  @override
+  void dispose() {
+    connection?.stop();
+    super.dispose();
+  }
+
 
   Future<void> fetchPositions() async {
     final prefs = await SharedPreferences.getInstance();
@@ -102,6 +115,7 @@ class _TelephoneInterviewSelectionPageState
   Future<void> fetchCandidates(int jobFormId) async {
     final url = '${baseUrl}/OpenPosCV/screened/$jobFormId';
     final response = await http.get(Uri.parse(url));
+    print(response.statusCode);
 
     if (response.statusCode == 200) {
       try {
@@ -240,10 +254,8 @@ class _TelephoneInterviewSelectionPageState
     }
   }
 
-  Future<void> toggleTelephoneInterviewStatus(
-      int jobFormId, int cvId, bool isChecked) async {
-    final url =
-        '${baseUrl}/OpenPosCV/$jobFormId/$cvId/toggle-telephone-interview';
+  Future<void> toggleTelephoneInterviewStatus(int jobFormId, int cvId, bool isChecked) async {
+    final url = '${baseUrl}/OpenPosCV/$jobFormId/$cvId/toggle-telephone-interview';
     final response = await http.put(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
@@ -254,25 +266,29 @@ class _TelephoneInterviewSelectionPageState
     print(response.statusCode);
 
     if (response.statusCode == 200) {
-      try {
         final Map<String, dynamic> data = json.decode(response.body);
-        print('Received response: $data'); // Debug print
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Candidate is set as passed successfully')),
         );
         if (data['success']) {
-          print(data['message']);
-        } else {
-          print('Failed to toggle status: ${data['message']}');
+            // Send notification via SignalR
+            final signalRUrl = '${baseUrl}/notificationHub';
+            final signalRResponse = await http.post(
+              Uri.parse(signalRUrl),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                'userId': data['userId'],
+                'message': 'You have passed the telephone interview!'
+              }),
+            );
+            print(signalRResponse.body);
+            print(signalRResponse.statusCode);
         }
-      } catch (e) {
-        print('Error parsing toggle status response: $e');
-      }
     } else {
-      print(
-          'Failed to toggle telephone interview status: ${response.statusCode}');
+        print('Failed to toggle telephone interview status: ${response.statusCode}');
     }
-  }
+}
+
 
   Future<void> _selectDate(BuildContext context, int index) async {
     DateTime? pickedDate = await showDatePicker(
@@ -300,13 +316,13 @@ class _TelephoneInterviewSelectionPageState
 
         // Call API to set interview date for the candidate
         _setInterviewDate(candidates[index]['id'], int.parse(selectedPosition!),
-            selectedDates[index]!);
+            selectedDates[index]!, candidates[index]['userId']);
       }
     }
   }
 
   Future<void> _setInterviewDate(
-      int cvId, int jobFormId, DateTime interviewDate) async {
+      int cvId, int jobFormId, DateTime interviewDate, String user_id) async {
     final url =
         '${baseUrl}/OpenPosCV/$cvId/jobform/$jobFormId/set-telephone-interview-date?interviewDate=$interviewDate';
     final response = await http.put(
@@ -318,10 +334,23 @@ class _TelephoneInterviewSelectionPageState
     print(response.statusCode);
 
     if (response.statusCode == 200) {
+      final signalRUrl = 'http://10.0.2.2:5266/notificationHub';
+            final signalRResponse = await http.post(
+              Uri.parse(signalRUrl),
+              headers: {'Content-Type': 'application/json'},
+              body: json.encode({
+                'userId': user_id,
+                'message': 'You have passed the telephone interview!'
+              }),
+            );
+            print(user_id);
+        print(signalRResponse.body);
+        print(signalRResponse.statusCode);
       print('Interview date set successfully');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Telephone interview Date set successfully')),
       );
+
     } else {
       print('Failed to set interview date: ${response.statusCode}');
     }

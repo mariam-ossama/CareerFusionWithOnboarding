@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:career_fusion/widgets/custom_named_field.dart';
+import 'package:career_fusion/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class PostCVScreeningPage extends StatefulWidget {
   final int postId;
@@ -17,21 +20,23 @@ class PostCVScreeningPage extends StatefulWidget {
 }
 
 class _PostCVScreeningPageState extends State<PostCVScreeningPage> {
+  TextEditingController positionController = TextEditingController();
+
   List<String>? selectedCVs; // List to store paths of selected CVs
-  final TextEditingController minQualificationsController =
+  /*final TextEditingController minQualificationsController =
       TextEditingController();
   final TextEditingController prefQualificationsController =
-      TextEditingController();
+      TextEditingController();*/
   List<TextEditingController> skillControllers =
       []; // List to manage skill controllers
 
-  String? selectedPosition; // Make this nullable
+  /*String? selectedPosition; // Make this nullable
   final List<String> positions = ['Position 1', 'Position 2', 'Position 3'];
   Map<String, List<String>> positionPDFs = {
     'Position 1': ['CV1.pdf', 'CV2.pdf'], // Example PDFs for Position 1
     'Position 2': ['CV3.pdf', 'CV4.pdf'], // Example PDFs for Position 2
     'Position 3': ['CV5.pdf', 'CV6.pdf'], // Example PDFs for Position 3
-  };
+  };*/
 
   Future<void> pickCVs() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -212,6 +217,81 @@ class _PostCVScreeningPageState extends State<PostCVScreeningPage> {
     }
   }
 
+  Future<void> addPosition(String positionController) async {
+    if (positionController == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a position')),
+      );
+      return;
+    }
+
+    final response = await http.post(
+      Uri.parse('https://cv-screening.onrender.com/enter-positions'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({'position': positionController}),
+    );
+    print(positionController);
+
+    print(response.statusCode);
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      final responseBody = json.decode(response.body);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(responseBody['message'])),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add position')),
+      );
+    }
+  }
+
+  Future<void> downloadExcel() async {
+    // Request permission to access storage
+    var status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      try {
+        // Get the directory to save the file
+        Directory? downloadsDirectory = await getExternalStorageDirectory();
+
+        if (downloadsDirectory != null) {
+          String filePath = '${downloadsDirectory.path}/candidates.xlsx';
+          final response = await http.get(Uri.parse('https://cv-screening.onrender.com/export-to-excel'));
+          print(filePath);
+
+          print(response.statusCode);
+          print(response.body);
+
+          if (response.statusCode == 200) {
+            File file = File(filePath);
+            await file.writeAsBytes(response.bodyBytes);
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Excel file downloaded successfully')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to download Excel file')),
+            );
+          }
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error downloading Excel file: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Storage permission denied')),
+      );
+    }
+  }
+
   List<Widget> _screenedCvCards = []; // List to store screened CV cards
 
   @override
@@ -229,7 +309,7 @@ class _PostCVScreeningPageState extends State<PostCVScreeningPage> {
       body: ListView(
         padding: EdgeInsets.all(8.0),
         children: [
-          Container(
+          /*Container(
             width: double.infinity,
             padding: EdgeInsets.all(8.0),
             decoration: BoxDecoration(
@@ -270,11 +350,19 @@ class _PostCVScreeningPageState extends State<PostCVScreeningPage> {
                 ),
               ),
             ),
+          ),*/
+          CustomNamedField(text: 'Enter a Position First'),
+          CustomTextField(obsecureText: false,
+          controllerText: positionController,
+          hint: 'Enter Position',
           ),
           SizedBox(height: 10),
           CustomButton(
             text: 'Select CVs',
-            onPressed: pickCVs,
+            onPressed: (){
+              addPosition(positionController.text);
+              pickCVs();
+              },
           ),
           if (selectedCVs != null && selectedCVs!.isNotEmpty)
             Column(
@@ -392,6 +480,10 @@ class _PostCVScreeningPageState extends State<PostCVScreeningPage> {
                 ..._screenedCvCards,
               ],
             ),
+            CustomButton(text: 'Export to excel',
+            onPressed: (){
+              downloadExcel();
+            },)
         ],
       ),
     );

@@ -323,7 +323,7 @@ class _CompanyEmployeesPageState extends State<CompanyEmployeesPage> {
         ),
         minimumSize: const Size(400, 60), // Button size
       ),
-          child: Text('Add Question',
+          child: Text('Add Company Goal',
           style: TextStyle(color: mainAppColor, fontSize: 20),),
           
           onPressed: () {

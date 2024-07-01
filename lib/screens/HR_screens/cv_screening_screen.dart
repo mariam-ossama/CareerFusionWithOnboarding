@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:career_fusion/constants.dart';
+import 'package:career_fusion/models/open_position.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
 import 'package:career_fusion/widgets/custom_named_field.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CVScreeningPage extends StatefulWidget {
   @override
@@ -21,15 +23,49 @@ class _CVScreeningPageState extends State<CVScreeningPage> {
       TextEditingController();
   List<TextEditingController> skillControllers = []; // List to manage skill controllers
   String? selectedPosition; // Nullable string to store selected position
-  final List<String> positions = ['Position 1', 'Position 2', 'Position 3'];
-  Map<String, List<String>> positionPDFs = {
+  List<Position> positions = [];
+  bool isLoading = true;
+ /* Map<String, List<String>> positionPDFs = {
     'Position 1': ['CV1.pdf', 'CV2.pdf'], // Example PDFs for Position 1
     'Position 2': ['CV3.pdf', 'CV4.pdf'], // Example PDFs for Position 2
     'Position 3': ['CV5.pdf', 'CV6.pdf'], // Example PDFs for Position 3
-  };
+  };*/
 
   List<Map<String, dynamic>> uploadedFiles = []; // List to store uploaded files info
   List<Map<String, dynamic>> screenedResults = []; // List to store screened CV results
+
+  Future<void> fetchPositions() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
+    if (userId == null) {
+      print('User ID not found');
+      return;
+    }
+
+    final url = '${baseUrl}/jobform/OpenPos/$userId';
+    final response = await http.get(Uri.parse(url));
+
+    print(response.statusCode);
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      try {
+        final List<dynamic> data = json.decode(response.body);
+        final List<Position> fetchedPositions =
+            data.map((item) => Position.fromJson(item)).toList();
+
+        setState(() {
+          positions = fetchedPositions;
+          isLoading = false;
+        });
+      } catch (e) {
+        print('Error parsing positions data: $e');
+      }
+    } else {
+      print('Failed to fetch positions: ${response.statusCode}');
+    }
+  }
 
   Future<void> pickCVs() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -47,6 +83,38 @@ class _CVScreeningPageState extends State<CVScreeningPage> {
       setState(() {
         selectedCVs = [];
       });
+    }
+  }
+
+  Future<void> addPosition() async {
+    if (selectedPosition == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select a position')),
+      );
+      return;
+    }
+
+    final response = await http.post(
+      Uri.parse('https://cv-screening.onrender.com/enter-positions'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({'position': selectedPosition}),
+    );
+
+    print(response.statusCode);
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      final responseBody = json.decode(response.body);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(responseBody['message'])),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add position')),
+      );
     }
   }
 
@@ -183,6 +251,12 @@ class _CVScreeningPageState extends State<CVScreeningPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    fetchPositions();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -218,14 +292,15 @@ class _CVScreeningPageState extends State<CVScreeningPage> {
                   onChanged: (String? newValue) {
                     setState(() {
                       selectedPosition = newValue;
+                      addPosition(); // Trigger the API endpoint
                     });
                   },
-                  items: positions.map<DropdownMenuItem<String>>((String value) {
+                  items: positions.map<DropdownMenuItem<String>>((Position position) {
                     return DropdownMenuItem<String>(
-                      value: value,
+                      value: position.jobId.toString(),
                       child: Center(
                         child: Text(
-                          value,
+                          position.title,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
