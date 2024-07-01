@@ -220,7 +220,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
   Future<void> uploadProfilePicture() async {
     try {
       final url =
-          'http://10.0.2.2:5266/api/UserProfile/upload-profile-picture/${widget.userData['userId']}';
+          '${baseUrl}/UserProfile/upload-profile-picture/${widget.userData['userId']}';
       var request = http.MultipartRequest('POST', Uri.parse(url))
         ..files.add(
           await http.MultipartFile.fromPath(
@@ -248,7 +248,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
   Future<void> fetchProfilePicture() async {
     try {
       final url =
-          'http://10.0.2.2:5266/api/UserProfile/${widget.userData['userId']}/profile-picture';
+          '${baseUrl}/UserProfile/${widget.userData['userId']}/profile-picture';
       final response = await http.get(Uri.parse(url));
       print(response.statusCode);
       print(response.body);
@@ -268,7 +268,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
   Future<void> fetchUserData() async {
     try {
       final url =
-          'http://10.0.2.2:5266/api/UserProfile/${widget.userData['userId']}';
+          '${baseUrl}/UserProfile/${widget.userData['userId']}';
       final response = await http.get(Uri.parse(url));
       print(response.statusCode);
       print(response.body);
@@ -320,7 +320,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
     final url =
-        'http://10.0.2.2:5266/api/UserProfile/${widget.userData['userId']}/skills/$skillId';
+        '${baseUrl}/UserProfile/${widget.userData['userId']}/skills/$skillId';
     try {
       final response = await http.delete(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -347,7 +347,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
     final url =
-        'http://10.0.2.2:5266/api/UserProfile/${widget.userData['userId']}/sitelinks/$siteLinkId';
+        '${baseUrl}/UserProfile/${widget.userData['userId']}/sitelinks/$siteLinkId';
     try {
       final response = await http.delete(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -374,7 +374,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
   Future<void> downloadCV() async {
     try {
       final response = await http
-          .get(Uri.parse('http://10.0.2.2:5266/api/UserProfile/download-file'));
+          .get(Uri.parse('${baseUrl}/UserProfile/download-file'));
       print(response.statusCode);
       print(response.body);
 
@@ -588,7 +588,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       icon: Icon(Icons.delete, color: mainAppColor),
                       onPressed: () async {
                         final url =
-                            'http://10.0.2.2:5266/api/UserProfile/${widget.userData['userId']}/courses/${course.courseId}';
+                            '${baseUrl}/UserProfile/${widget.userData['userId']}/courses/${course.courseId}';
                         try {
                           final response = await http.delete(Uri.parse(url));
                           print(response.body);
@@ -665,7 +665,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                       ),
                       onPressed: () async {
                         final url =
-                            'http://10.0.2.2:5266/api/UserProfile/${widget.userData['userId']}/projectlinks/${project.projectId}';
+                            '${baseUrl}/UserProfile/${widget.userData['userId']}/projectlinks/${project.projectId}';
                         try {
                           final response = await http.delete(Uri.parse(url));
                           print(response.body);
@@ -875,7 +875,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
                             var request = http.MultipartRequest(
                                 'POST',
                                 Uri.parse(
-                                    'http://10.0.2.2:5266/api/UserProfile/upload-file'));
+                                    '${baseUrl}/UserProfile/upload-file'));
                             request.files.add(
                               await http.MultipartFile.fromPath(
                                 'file',
@@ -1030,7 +1030,7 @@ class _UserDetailPageState extends State<UserDetailPage> {
       // Send the update request
       final response = await http.put(
         Uri.parse(
-            'http://10.0.2.2:5266/api/UserProfile/${widget.userData['userId']}'),
+            '${baseUrl}/UserProfile/${widget.userData['userId']}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

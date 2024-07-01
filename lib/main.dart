@@ -16,6 +16,7 @@ import 'package:career_fusion/screens/candidate_screens/candidate_roadmap_screen
 import 'package:career_fusion/screens/HR_screens/cv_screening_result_screen.dart';
 import 'package:career_fusion/screens/HR_screens/cv_screening_screen.dart';
 import 'package:career_fusion/screens/HR_screens/hr_posts_screen.dart';
+import 'package:career_fusion/screens/candidate_screens/employee_report_screen.dart';
 import 'package:career_fusion/screens/candidate_screens/recommended_jobs_screen.dart';
 import 'package:career_fusion/screens/HR_screens/define_needs_screen.dart';
 import 'package:career_fusion/screens/candidate_screens/edit_user_profile_screen.dart';
@@ -143,6 +144,7 @@ class CareerFusion extends StatelessWidget {
         'HRPostsPage': (context) => HRPostsPage(),
         'CandidateRoadmapPage': (context) => CandidateRoadmapPage(),
         'CompanyEmployeesPage': (context) => CompanyEmployeesPage(),
+        'ReportPage':(context) => ReportPage()
       },
       debugShowCheckedModeBanner: false,
       initialRoute: onboardingCompleted ? 'WelcomePage' : 'OnboardingScreen',

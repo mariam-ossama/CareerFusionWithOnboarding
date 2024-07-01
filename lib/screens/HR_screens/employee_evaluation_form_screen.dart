@@ -5,7 +5,10 @@ import 'package:career_fusion/models/employee_evaluation_form.dart';
 import 'package:career_fusion/models/evaluation_question.dart';
 import 'package:career_fusion/models/question_actual_score.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
+import 'package:career_fusion/widgets/custom_named_field.dart';
+import 'package:career_fusion/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -149,18 +152,148 @@ class _EvaluationFormPageState extends State<EvaluationFormPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '${widget.employee.userFullName} Evaluation Form',
-          style: TextStyle(
-            color: Colors.white,
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            '${widget.employee.userFullName} Evaluation Form',
+            style: TextStyle(
+              color: Colors.white,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
-          overflow: TextOverflow.ellipsis,
+          backgroundColor: mainAppColor,
+          bottom: TabBar(
+            indicatorColor: secondColor,
+            indicatorSize: TabBarIndicatorSize.tab,
+            tabs: [
+            Tab(
+              icon: Icon(Icons.rate_review, color: Colors.white,),
+            ),
+            Tab(
+              icon: Icon(Icons.report, color: Colors.white,),
+            ),
+            Tab(
+              icon: Icon(Icons.reply, color: Colors.white,),
+            ),
+          ]),
         ),
-        backgroundColor: mainAppColor,
+        body: TabBarView(
+          children:[
+            evaluation_form(),
+            employee_report_creation(),
+            employee_report_display(),
+            ],),
+            
       ),
-      body: SingleChildScrollView(
+    );
+  }
+
+  Widget employee_report_creation(){
+    return Column(
+      children: [
+        SizedBox(height: 10,),
+        CustomNamedField(text: 'Report Title'),
+        CustomTextField(obsecureText: false,
+        hint: 'Enter report title',),
+        SizedBox(height: 10,),
+        CustomNamedField(text: 'Report Content'),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+                //controller: _postController,
+                maxLines: 10,
+                keyboardType: TextInputType.multiline,
+                decoration: InputDecoration(
+                  hintText: 'Write report...',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+        ),
+        SizedBox(height: 10,),
+        CustomButton(text: 'Save Report',
+        onPressed: (){},),
+        SizedBox(height: 5,),
+        CustomButton(text: 'Send to ${widget.employee.userFullName}',
+        onPressed: (){},)
+      ],
+    );
+  }
+
+  Widget employee_report_display(){
+    return Column(
+      children: [
+        SizedBox(height: 10,),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+          color: cardsBackgroundColor,
+          child: ListTile(
+            title: Text('Report Title',
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: mainAppColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              overflow: TextOverflow.ellipsis,
+            ),),
+          ),
+          ),
+        ),
+        SizedBox(height: 5,),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            color: cardsBackgroundColor,
+            child: ListTile(
+              title: Column(children: [
+                Row(
+                  children: [Icon(Icons.person,color: mainAppColor,size: 16,),
+                  SizedBox(width: 5,),
+                  Text('${widget.employee.userFullName}')],
+                ),
+                SizedBox(height: 5,),
+                Row(
+                  children: [Icon(Icons.email,color: mainAppColor,size: 16,),
+                  SizedBox(width: 5,),
+                  Text('${widget.employee.userEmail}')],
+                )
+              ],)),
+          ),
+        ),
+        SizedBox(height: 5,),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            color: cardsBackgroundColor,
+            child: ListTile(
+              title: Text('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjmmmmmmmmm')),
+          ),
+        ),
+        SizedBox(height: 5,),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            color: cardsBackgroundColor,
+            child: ListTile(
+              title: Text('Is Read: ')),
+          ),
+        ),
+        SizedBox(height: 5,),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            color: cardsBackgroundColor,
+            child: ListTile(title: Text('Is Accepted: ')),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget evaluation_form(){
+    return SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -183,8 +316,7 @@ class _EvaluationFormPageState extends State<EvaluationFormPage> {
             Center(child: _buildDisplayOverallResult()),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget _buildQuestionForm() {

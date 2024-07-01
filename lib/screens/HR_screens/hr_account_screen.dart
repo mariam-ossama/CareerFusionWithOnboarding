@@ -62,14 +62,14 @@ class HRAccountPage extends StatelessWidget {
                     Navigator.pushNamed(context, 'RecruitmentPage');
                   },
                 ),
-                MenuCard(
+                /*MenuCard(
                   title: 'Assessments',
                   iconData: Icons.quiz_rounded,
                   onTap: () {
                     Navigator.pushNamed(
                         context, 'TechnicalInterviewModelsPage');
                   },
-                ),
+                ),*/
                 MenuCard(
                   title: 'Job Anouncements',
                   iconData: Icons.announcement_rounded,
