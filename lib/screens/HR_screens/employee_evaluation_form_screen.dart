@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/models/employee.dart';
+import 'package:career_fusion/models/employee_evaluation_form.dart';
+import 'package:career_fusion/models/evaluation_question.dart';
+import 'package:career_fusion/models/question_actual_score.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -458,88 +461,9 @@ class _EvaluationFormPageState extends State<EvaluationFormPage> {
   }
 }
 
-class EmployeeEvaluationForm {
-  String? userId;
-  double? overallScore; // Change from int? to double?
-  List<EvaluationQuestion>? questions;
-  String? comparisonResult;
 
-  EmployeeEvaluationForm({
-    this.userId,
-    this.overallScore,
-    this.questions,
-    this.comparisonResult,
-  });
 
-  EmployeeEvaluationForm.fromJson(Map<String, dynamic> json) {
-    userId = json['userId'];
-    overallScore = json['overallScore']?.toDouble(); // Convert to double
-    if (json['questions'] != null) {
-      questions = <EvaluationQuestion>[];
-      json['questions'].forEach((v) {
-        questions!.add(EvaluationQuestion.fromJson(v));
-      });
-    }
-    comparisonResult = json['comparisonResult'];
-  }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['userId'] = userId;
-    data['overallScore'] = overallScore;
-    if (questions != null) {
-      data['questions'] = questions!.map((v) => v.toJson()).toList();
-    }
-    data['comparisonResult'] = comparisonResult;
-    return data;
-  }
-}
-
-class QuestionActualScore {
-  String? userId;
-  int? questionId;
-  int? score;
-
-  QuestionActualScore({this.userId, this.questionId, this.score});
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['userId'] = this.userId;
-    data['questionId'] = this.questionId;
-    data['score'] = this.score;
-    return data;
-  }
-}
-
-class EvaluationQuestion {
-  int? id;
-  String? hrId;
-  String? question;
-  int? defaultScore;
-
-  EvaluationQuestion({
-    this.id,
-    this.hrId,
-    this.question,
-    this.defaultScore,
-  });
-
-  EvaluationQuestion.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    hrId = json['hrId'];
-    question = json['question'];
-    defaultScore = json['defaultScore'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = id;
-    data['hrId'] = hrId;
-    data['question'] = question;
-    data['defaultScore'] = defaultScore;
-    return data;
-  }
-}
 
 
 

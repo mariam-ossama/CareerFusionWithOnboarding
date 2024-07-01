@@ -32,7 +32,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
 
   Future<void> fetchJobDetails() async {
     final response = await http.get(
-        Uri.parse('http://10.0.2.2:5266/api/jobform/jobDetails/${widget.user_id}/${widget.jobIds}'));
+        Uri.parse('${baseUrl}/jobform/jobDetails/${widget.user_id}/${widget.jobIds}'));
 
     if (response.statusCode == 200) {
       setState(() {

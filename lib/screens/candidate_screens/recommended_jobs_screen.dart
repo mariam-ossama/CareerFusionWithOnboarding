@@ -1,34 +1,47 @@
+import 'dart:convert';
+
 import 'package:career_fusion/constants.dart';
-import 'package:career_fusion/widgets/custom_job_card.dart';
+import 'package:career_fusion/models/recommended_job.dart';
+import 'package:career_fusion/widgets/recommended_job_card.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../models/job.dart';
+class RecommendedJobsPage extends StatefulWidget {
+  const RecommendedJobsPage({super.key});
 
-class RecommendedJobsPage extends StatelessWidget {
-  final List<Job> jobs = [
-    /*Job(
-      companyName: 'Valeo',
-      jobTitle: 'Software Engineer',
-      location: 'Egypt, Cairo',
-      type: 'Full-Time',
-      logoUrl: 'assets/images/Valeo_Logo.svg.png',
-    ),
-    Job(
-      companyName: 'Valeo',
-      jobTitle: 'Software Engineer',
-      location: 'Egypt, Cairo',
-      type: 'Full-Time',
-      logoUrl: 'assets/images/Valeo_Logo.svg.png',
-    ),
-    Job(
-      companyName: 'Valeo',
-      jobTitle: 'Software Engineer',
-      location: 'Egypt, Cairo',
-      type: 'Full-Time',
-      logoUrl: 'assets/images/Valeo_Logo.svg.png',
-    ),*/
-    // Add more jobs as needed
-  ];
+  @override
+  State<RecommendedJobsPage> createState() => _RecommendedJobsPageState();
+}
+
+class _RecommendedJobsPageState extends State<RecommendedJobsPage> {
+  List<RecommendedJob> jobs = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRecommendedJobs();
+  }
+
+  Future<void> fetchRecommendedJobs() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+    final url = Uri.parse('http://10.0.2.2:5000/recommend-jobs/${userId}');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as List;
+        setState(() {
+          jobs = data.map((job) => RecommendedJob.fromJson(job)).toList();
+        });
+      } else {
+        throw Exception('Failed to fetch recommended jobs');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +50,6 @@ class RecommendedJobsPage extends StatelessWidget {
         title: Text(
           'Recommended for you',
           style: TextStyle(
-            //fontFamily: appFont,
             color: Colors.white,
           ),
         ),
@@ -61,13 +73,10 @@ class RecommendedJobsPage extends StatelessWidget {
       body: ListView.builder(
         itemCount: jobs.length,
         itemBuilder: (context, index) {
-          return JobCard(
-            job: jobs[index],
-            onTap: () {
-              Navigator.pushNamed(context, 'JobDetailsPage');
-              // Handle job card click here
-              // You can implement navigation or other actions as needed
-            },
+          final job = jobs[index];
+          return RecommendedJobCard(
+            jobTitle: job.jobTitle,
+            similarity: job.similarity,
           );
         },
       ),

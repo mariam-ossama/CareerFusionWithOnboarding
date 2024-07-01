@@ -47,7 +47,7 @@ class _MyWidgetState extends State<UserProfilePage> {
 
     try {
       final url =
-          'http://10.0.2.2:5266/api/UserProfile/upload-profile-picture/${userId}';
+          '${baseUrl}/UserProfile/upload-profile-picture/${userId}';
       var request = http.MultipartRequest('POST', Uri.parse(url))
         ..files.add(
           await http.MultipartFile.fromPath(
@@ -77,7 +77,7 @@ class _MyWidgetState extends State<UserProfilePage> {
     String? userId = prefs.getString('userId');
     try {
       final url =
-          'http://10.0.2.2:5266/api/UserProfile/${userId}/profile-picture';
+          '${baseUrl}/UserProfile/${userId}/profile-picture';
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final responseBody = jsonDecode(response.body);
@@ -96,7 +96,7 @@ class _MyWidgetState extends State<UserProfilePage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? userId = prefs.getString('userId');
-      final url = 'http://10.0.2.2:5266/api/UserProfile/${userId}';
+      final url = '${baseUrl}/UserProfile/${userId}';
       final response = await http.get(Uri.parse(url));
       print(response.statusCode);
       print(response.body);
@@ -147,7 +147,7 @@ class _MyWidgetState extends State<UserProfilePage> {
   Future<void> deleteSkill(int skillId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
-    final url = 'http://10.0.2.2:5266/api/UserProfile/$userId/skills/$skillId';
+    final url = '${baseUrl}/UserProfile/$userId/skills/$skillId';
     try {
       final response = await http.delete(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -174,7 +174,7 @@ class _MyWidgetState extends State<UserProfilePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
     final url =
-        'http://10.0.2.2:5266/api/UserProfile/$userId/sitelinks/$siteLinkId';
+        '${baseUrl}/UserProfile/$userId/sitelinks/$siteLinkId';
     try {
       final response = await http.delete(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -201,7 +201,7 @@ class _MyWidgetState extends State<UserProfilePage> {
   Future<void> downloadCV() async {
     try {
       final response = await http
-          .get(Uri.parse('http://10.0.2.2:5266/api/UserProfile/download-file'));
+          .get(Uri.parse('${baseUrl}/UserProfile/download-file'));
 
       if (response.statusCode == 200) {
         final directory = await getExternalStorageDirectory();
@@ -442,7 +442,7 @@ class _MyWidgetState extends State<UserProfilePage> {
                             await SharedPreferences.getInstance();
                         String? userId = prefs.getString('userId');
                         final url =
-                            'http://10.0.2.2:5266/api/UserProfile/$userId/courses/${course.courseId}';
+                            '${baseUrl}/UserProfile/$userId/courses/${course.courseId}';
                         try {
                           final response = await http.delete(Uri.parse(url));
                           print(response.body);
@@ -524,7 +524,7 @@ class _MyWidgetState extends State<UserProfilePage> {
                             await SharedPreferences.getInstance();
                         String? userId = prefs.getString('userId');
                         final url =
-                            'http://10.0.2.2:5266/api/UserProfile/$userId/projectlinks/${project.projectId}';
+                            '${baseUrl}/UserProfile/$userId/projectlinks/${project.projectId}';
                         try {
                           final response = await http.delete(Uri.parse(url));
                           print(response.body);
@@ -711,7 +711,7 @@ class _MyWidgetState extends State<UserProfilePage> {
                             var request = http.MultipartRequest(
                                 'POST',
                                 Uri.parse(
-                                    'http://10.0.2.2:5266/api/UserProfile/upload-file'));
+                                    '${baseUrl}/UserProfile/upload-file'));
                             request.files.add(
                               await http.MultipartFile.fromPath(
                                 'file',

@@ -51,7 +51,7 @@ class _SubmitApplicationScreenState extends State<ApplyToJobPostPage> {
     var request = http.MultipartRequest(
       'POST',
       Uri.parse(
-          'http://10.0.2.2:5266/api/CVUpload/${widget.postId}/upload-postcv?userId=${userId}'),
+          '${baseUrl}/CVUpload/${widget.postId}/upload-postcv?userId=${userId}'),
     );
 
     request.files.add(await http.MultipartFile.fromPath('cvFile', file.path));

@@ -18,7 +18,7 @@ Future<UserProfile> fetchUserProfile() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String? userId = prefs.getString('userId');
   final response = await http.get(
-    Uri.parse('http://10.0.2.2:5266/api/UserProfile/$userId'),
+    Uri.parse('${baseUrl}/UserProfile/$userId'),
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -246,7 +246,7 @@ class _EditUserProfilePageState extends State<EditUserProfilePage> {
 
       // Send the update request
       final response = await http.put(
-        Uri.parse('http://10.0.2.2:5266/api/UserProfile/$userId'),
+        Uri.parse('${baseUrl}/UserProfile/$userId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
