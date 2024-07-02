@@ -23,16 +23,25 @@ class EvaluationFormPage extends StatefulWidget {
 
 class _EvaluationFormPageState extends State<EvaluationFormPage> {
   List<EvaluationQuestion> questions = [];
+  List<dynamic> reports = [];
   String newQuestion = '';
   int newScore = 0;
   TextEditingController actualScoreController = TextEditingController();
   String overallScore = '';
   String status = '';
+  bool sendButtonVisible = false; // Initialize to false initially
+  int? createdReportId;
+  int? latestReportId = 0;
+
+  TextEditingController reportTitleController = TextEditingController();
+  TextEditingController reportContentController = TextEditingController();
+
 
   @override
   void initState() {
     super.initState();
     _fetchQuestions();
+    fetchReports();
   }
 
   Future<void> _fetchQuestions() async {
@@ -191,18 +200,19 @@ class _EvaluationFormPageState extends State<EvaluationFormPage> {
   }
 
   Widget employee_report_creation(){
-    return Column(
+    return ListView(
       children: [
         SizedBox(height: 10,),
         CustomNamedField(text: 'Report Title'),
         CustomTextField(obsecureText: false,
-        hint: 'Enter report title',),
+        hint: 'Enter report title',
+        controllerText: reportTitleController,),
         SizedBox(height: 10,),
         CustomNamedField(text: 'Report Content'),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
-                //controller: _postController,
+                controller: reportContentController,
                 maxLines: 10,
                 keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(
@@ -213,82 +223,183 @@ class _EvaluationFormPageState extends State<EvaluationFormPage> {
         ),
         SizedBox(height: 10,),
         CustomButton(text: 'Save Report',
-        onPressed: (){},),
+        onPressed: () async{
+           await _createReport();
+        },),
         SizedBox(height: 5,),
         CustomButton(text: 'Send to ${widget.employee.userFullName}',
-        onPressed: (){},)
+        onPressed: () async{
+          _sendReport();
+        },)
       ],
     );
   }
 
+  Future<void> fetchReports() async {
+    final response = await http.get(Uri.parse('${baseUrl}/Report/User/${widget.employee.userId}'));
+    print(response.body);
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      setState(() {
+        reports = json.decode(response.body);
+        // Initialize report acceptance state for each report
+      });
+    } else {
+      // Handle the error
+      print('Failed to load reports');
+    }
+  }
+
+
+  Future<void> _createReport() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('userId');
+
+
+  final url = '${baseUrl}/Report/Create/$userId';
+  print(userId);
+  final response = await http.post(
+    Uri.parse(url),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode({
+      'title': reportTitleController.text,
+      'text': reportContentController.text,
+      'hrUserId': userId,
+    }),
+  );
+
+  print(response.statusCode);
+  print(response.body);
+
+  if (response.statusCode == 200) {
+    var responseData = jsonDecode(response.body);
+    // Handle success
+    // Optionally, you can show a success message or update the UI
+    setState(() {
+      // Clear the text fields after successful submission
+      reportTitleController.clear();
+      reportContentController.clear();
+      // Enable the send button after successful report creation
+      latestReportId = responseData['reportId'];
+      print(latestReportId);
+    });
+  } else {
+    // Handle error: API request failed
+    // You might want to show an error message or handle this case as needed
+  }
+}
+
+
+  Future<void> _sendReport() async {
+
+  // Get the latest report ID from the state or use another mechanism to track it // Replace with your mechanism to get the latest report ID
+  print('Latest id in _send report: ${latestReportId}');
+
+  final url = '${baseUrl}/Report/$latestReportId/SendTo/${widget.employee.userId}';
+  print(widget.employee.userId);
+  final response = await http.post(
+    Uri.parse(url),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+  );
+  print(response.statusCode);
+  print(response.body);
+
+  if (response.statusCode == 200) {
+    // Handle success
+    // Optionally, you can show a success message or update the UI
+  } else {
+    // Handle error: API request failed
+    // You might want to show an error message or handle this case as needed
+  }
+}
+
+  
+
   Widget employee_report_display(){
-    return Column(
-      children: [
-        SizedBox(height: 10,),
-        Padding(
+    return ListView.builder(
+      itemCount: reports.length,
+      itemBuilder: (context, index) {
+        final report = reports[index];
+        return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Card(
-          color: cardsBackgroundColor,
-          child: ListTile(
-            title: Text('Report Title',
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: mainAppColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 22,
-              overflow: TextOverflow.ellipsis,
-            ),),
-          ),
-          ),
-        ),
-        SizedBox(height: 5,),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-            color: cardsBackgroundColor,
-            child: ListTile(
-              title: Column(children: [
-                Row(
-                  children: [Icon(Icons.person,color: mainAppColor,size: 16,),
-                  SizedBox(width: 5,),
-                  Text('${widget.employee.userFullName}')],
+          color: secondColor,
+          child: Column(
+            children: [
+              SizedBox(height: 10,),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                color: cardsBackgroundColor,
+                child: ListTile(
+                  title: Text(report['title'],
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: mainAppColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    overflow: TextOverflow.ellipsis,
+                  ),),
                 ),
-                SizedBox(height: 5,),
-                Row(
-                  children: [Icon(Icons.email,color: mainAppColor,size: 16,),
-                  SizedBox(width: 5,),
-                  Text('${widget.employee.userEmail}')],
-                )
-              ],)),
+                ),
+              ),
+              SizedBox(height: 5,),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  color: cardsBackgroundColor,
+                  child: ListTile(
+                    title: Column(children: [
+                      Row(
+                        children: [Icon(Icons.person,color: mainAppColor,size: 16,),
+                        SizedBox(width: 5,),
+                        Text('${widget.employee.userFullName}')],
+                      ),
+                      SizedBox(height: 5,),
+                      Row(
+                        children: [Icon(Icons.email,color: mainAppColor,size: 16,),
+                        SizedBox(width: 5,),
+                        Text('${widget.employee.userEmail}')],
+                      )
+                    ],)),
+                ),
+              ),
+              SizedBox(height: 5,),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  color: cardsBackgroundColor,
+                  child: ListTile(
+                    title: Text(report['text'])),
+                ),
+              ),
+              SizedBox(height: 5,),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  color: cardsBackgroundColor,
+                  child: ListTile(
+                    title: Text('Is Read: ${report['isRead'] == true? 'Yes' : 'No'}')),
+                ),
+              ),
+              SizedBox(height: 5,),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  color: cardsBackgroundColor,
+                  child: ListTile(title: Text('Is Accepted: ${report['isAccepted'] == true ? 'Accepted' : 'Rejected'}')),
+                ),
+              )
+            ],
           ),
-        ),
-        SizedBox(height: 5,),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-            color: cardsBackgroundColor,
-            child: ListTile(
-              title: Text('jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjmmmmmmmmm')),
-          ),
-        ),
-        SizedBox(height: 5,),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-            color: cardsBackgroundColor,
-            child: ListTile(
-              title: Text('Is Read: ')),
-          ),
-        ),
-        SizedBox(height: 5,),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-            color: cardsBackgroundColor,
-            child: ListTile(title: Text('Is Accepted: ')),
-          ),
-        )
-      ],
+                ),
+        );
+      },
     );
   }
 

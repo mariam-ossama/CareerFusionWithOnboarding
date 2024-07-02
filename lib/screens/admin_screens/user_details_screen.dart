@@ -1596,15 +1596,6 @@ class _UserDetailPageState extends State<UserDetailPage> {
             onTap: () {
               final jobId = positions[index].jobId;
               if (jobId != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PositionDetailsPage(
-                        userId: widget.userData['userId'],
-                        jobId: jobId,
-                        jobTitle: positions[index].title),
-                  ),
-                );
               } else {
                 // Handle the case where jobId is null
                 print('Job ID is null for position at index $index');

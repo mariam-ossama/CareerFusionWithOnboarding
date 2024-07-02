@@ -161,8 +161,15 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
             height: 20,
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: cvs?.length ?? 0,
+            child: cvs!.isEmpty
+                ? Center(
+                    child: Text(
+                      'No results found',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  )
+                :ListView.builder(
+              itemCount: cvs.length,
               itemBuilder: (context, index) {
                 return Card(
                   shadowColor: Colors.grey[500],

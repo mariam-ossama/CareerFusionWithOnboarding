@@ -236,7 +236,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 controllerText: passwordController,
                 icon: IconButton(
                   icon: Icon(
-                    obsecureText ? Icons.visibility : Icons.visibility_off,
+                    obsecureText ? Icons.visibility_off:Icons.visibility,
                   ),
                   onPressed: () {
                     setState(() {
@@ -305,7 +305,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       }
                     : null,
               ),
-              SizedBox(
+              /*SizedBox(
                 height: 15,
               ),
               Center(
@@ -383,7 +383,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               SizedBox(
                 height: 6,
-              ),
+              ),*/
               const SizedBox(
                 height: 20,
               ),

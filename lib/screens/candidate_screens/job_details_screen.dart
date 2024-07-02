@@ -104,13 +104,13 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          CircleAvatar(
-                            radius: 35,
-                            backgroundImage: profilePicturePath != null
-                                ? NetworkImage('http://10.0.2.2:5266${profilePicturePath}')
-                                : Icon(Icons.person,color: mainAppColor,) as ImageProvider,
-                          ),
-                          SizedBox(width: 10),
+                          if (profilePicturePath != null) ...[
+                            CircleAvatar(
+                              radius: 35,
+                              backgroundImage: NetworkImage('http://10.0.2.2:5266${profilePicturePath}'),
+                            ),
+                            SizedBox(width: 10),
+                          ],
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
@@ -130,7 +130,6 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       color: Colors.grey,
-                                      //decoration: TextDecoration.underline
                                     ),
                                   ),
                                 ],
@@ -148,16 +147,9 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                                   ),
                                 ],
                               ),
-                              /*Text(
-                                companyData['phoneNumber'] ?? 'Phone Number',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  color: Colors.grey,
-                                ),
-                              ),*/
                             ],
                           ),
-                          Spacer(), // Added Spacer to push job location to the right
+                          Spacer(),
                         ],
                       ),
                       SizedBox(height: 16.0),
@@ -168,7 +160,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      for (var description in jobDetails['jobDescriptions'])
+                      for (var description in jobDetails['jobDescriptions'] ?? [])
                         Text(
                           description['description'] ?? '',
                           style: TextStyle(
@@ -183,7 +175,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      for (var skill in jobDetails['jobSkills'])
+                      for (var skill in jobDetails['jobSkills'] ?? [])
                         Text(
                           '• ${skill['skillName'] ?? ''}',
                           style: TextStyle(
@@ -198,7 +190,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      for (var responsibility in jobDetails['jobResponsibilities'])
+                      for (var responsibility in jobDetails['jobResponsibilities'] ?? [])
                         Text(
                           responsibility['responsibility'] ?? '',
                           style: TextStyle(

@@ -18,7 +18,6 @@ class SubmitApplicationScreen extends StatefulWidget {
 }
 
 class _SubmitApplicationScreenState extends State<SubmitApplicationScreen> {
-  final TextEditingController _coverLetterController = TextEditingController();
   String? _cvFilePath;
 
   void _pickCV() async {
@@ -59,6 +58,7 @@ class _SubmitApplicationScreenState extends State<SubmitApplicationScreen> {
     try {
       var response = await request.send();
       print(response.statusCode);
+      print(file.path);
 
       if (response.statusCode == 200) {
         // CV uploaded successfully

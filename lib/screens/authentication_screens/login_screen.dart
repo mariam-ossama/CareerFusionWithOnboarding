@@ -160,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(
-                  width: 130,
+                  width: 90,
                 ),
                 TextButton(
                   onPressed: () {

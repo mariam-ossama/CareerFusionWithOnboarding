@@ -208,6 +208,7 @@ class _MyWidgetState extends State<UserProfilePage> {
         final downloadsPath = '${directory!.path}/Download';
         final filePath = '$downloadsPath/CV.docx';
         final file = File(filePath);
+        print(filePath);
 
         if (!Directory(downloadsPath).existsSync()) {
           Directory(downloadsPath).createSync(recursive: true);

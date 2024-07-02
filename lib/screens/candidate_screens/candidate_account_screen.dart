@@ -222,7 +222,9 @@ class _AccountPageState extends State<AccountPage> {
                           posts[index].content ?? '',
                           style: TextStyle(fontSize: 16),
                         ),
-                        if (posts[index].fileId != null) ...[
+                        if (posts[index].fileId != null &&
+                            posts[index].fileUrls != null &&
+                            posts[index].fileUrls!.isNotEmpty) ...[
                           SizedBox(
                             height: 10,
                           ),
@@ -243,18 +245,15 @@ class _AccountPageState extends State<AccountPage> {
                                       ),
                                       SizedBox(width: 10),
                                       Flexible(
-                                        // Add this to prevent overflow
                                         child: Text(
-                                          posts[index].fileUrls![
-                                              0], // Displaying the first URL
+                                          posts[index].fileUrls![0],
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontFamily: appFont,
                                             fontWeight: FontWeight.bold,
                                           ),
-                                          overflow: TextOverflow
-                                              .ellipsis, // Handle overflow
-                                          maxLines: 1, // Limit to one line
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
                                         ),
                                       ),
                                     ],
@@ -264,31 +263,20 @@ class _AccountPageState extends State<AccountPage> {
                             ),
                           )
                         ],
-                        if (posts[index].imageUrls != null) ...[
+                        if (posts[index].imageUrls != null &&
+                            posts[index].imageUrls!.isNotEmpty) ...[
                           SizedBox(height: 10),
                           Center(
                             child: SizedBox(
-                              width: 300, // Specify the desired width
-                              height: 300, // Specify the desired height
-                              child: posts[index].imageUrls != null &&
-                                      posts[index].imageUrls!.isNotEmpty
-                                  ? Image.network(
-                                      posts[index].imageUrls![
-                                          0], // Assuming you want to display the first image in the list
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return Text('Image not available');
-                                      },
-                                      fit: BoxFit
-                                          .cover, // Ensure the image covers the box
-                                    )
-                                  : Container(
-                                      color: Colors.grey[
-                                          300], // Placeholder for no image scenario
-                                      child: Center(
-                                        child: Text('No Image'),
-                                      ),
-                                    ),
+                              width: 300,
+                              height: 300,
+                              child: Image.network(
+                                posts[index].imageUrls![0],
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Text('Image not available');
+                                },
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                         ],
@@ -305,19 +293,28 @@ class _AccountPageState extends State<AccountPage> {
                           ),
                         ),
                         SizedBox(height: 10),
-                        CustomButton(
-                          text: 'Apply',
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ApplyToJobPostPage(
-                                  postId: posts[index].postId!,
-                                ),
+                        Divider(
+                          color: secondColor,
+                          thickness: 2.0,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomButton(
+                                text: 'Apply Now',
+                                onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ApplyToJobPostPage(
+                                                postId: posts[index].postId),
+                                      ),
+                                    );
+                                },
                               ),
-                            );
-                            print(posts[index].postId);
-                          },
+                            ),
+                          ],
                         ),
                       ],
                     ),

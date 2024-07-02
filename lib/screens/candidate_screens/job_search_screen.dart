@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:career_fusion/constants.dart';
+import 'package:career_fusion/screens/candidate_screens/job_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -21,30 +22,7 @@ class _JobSearchPageState extends State<JobSearchPage> {
     print('Tapped on $category');
   }
 
-  List<Job> jobs = [
-    /*Job(
-      companyName: 'Valeo',
-      jobTitle: 'Software Engineer',
-      location: 'Egypt, Cairo',
-      type: 'Full-Time',
-      logoUrl: 'assets/images/Valeo_Logo.svg.png',
-    ),
-    Job(
-      companyName: 'Valeo',
-      jobTitle: 'Software Engineer',
-      location: 'Egypt, Cairo',
-      type: 'Full-Time',
-      logoUrl: 'assets/images/Valeo_Logo.svg.png',
-    ),
-    Job(
-      companyName: 'Valeo',
-      jobTitle: 'Software Engineer',
-      location: 'Egypt, Cairo',
-      type: 'Full-Time',
-      logoUrl: 'assets/images/Valeo_Logo.svg.png',
-    ),*/
-    // Add more jobs as needed
-  ];
+  List<Job>? jobs = [];
 
   Future<void> _searchJobsByTitle() async {
     final url = Uri.parse(
@@ -73,6 +51,7 @@ class _JobSearchPageState extends State<JobSearchPage> {
         '${baseUrl}/JobSearch/SearchTitleWithLocation?keyword=${searchJobTitle.text}&location=${searchLocation.text}');
 
     final response = await http.get(url);
+    print(response.body);
 
     if (response.statusCode == 200) {
       final List<dynamic> responseData = jsonDecode(response.body);
@@ -185,56 +164,6 @@ class _JobSearchPageState extends State<JobSearchPage> {
           SizedBox(
             height: 20,
           ),
-          /*Expanded(
-            child: ListView(
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                    child: Text('Advanced filter',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Montserrat-VariableFont_wght',
-                        )),
-                  ),
-                ),
-                SizedBox(
-                  width: 30,
-                ),
-                ListTile(
-                  title: Center(
-                      child: Text(
-                    'by Location',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat-VariableFont_wght',
-                    ),
-                  )),
-                  onTap: () => _onSearchItemTap('Location'),
-                ),
-                ListTile(
-                  title: Center(
-                      child: Text(
-                    'by Industry',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat-VariableFont_wght',
-                    ),
-                  )),
-                  onTap: () => _onSearchItemTap('Industry'),
-                ),
-                ListTile(
-                  title: Center(
-                      child: Text(
-                    'by Experience level',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat-VariableFont_wght',
-                    ),
-                  )),
-                  onTap: () => _onSearchItemTap('Experience level'),
-                ),
-              ],
-            ),
-          ),*/
           Container(
             height: 40,
             child: ListView(
@@ -323,32 +252,32 @@ class _JobSearchPageState extends State<JobSearchPage> {
               ],
             ),
           ),
-          /*SizedBox(height: 130,),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              SizedBox(
-                width: 200, // Specify the desired width
-                height: 150, // Specify the desired height
-                child: Image.asset(
-                    'assets/images/undraw_adventure_map_hnin_new.png'),
-              ),
-            ],
-          ),*/
           SizedBox(
             height: 10,
           ),
           Expanded(
-            child: ListView.builder(
+            child: jobs!.isEmpty
+                ? Center(
+                    child: Text(
+                      'No results found',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  )
+                :ListView.builder(
               scrollDirection: Axis.vertical,
-              itemCount: jobs.length,
+              itemCount: jobs!.length,
               itemBuilder: (context, index) {
                 return SearchedJobCard(
-                  job: jobs[index],
+                  job: jobs![index],
                   onTap: () {
-                    Navigator.pushNamed(context, 'JobDetailsPage');
                     // Handle job card click here
                     // You can implement navigation or other actions as needed
+                   /* MaterialPageRoute(
+                  builder: (context) => JobDetailsPage(
+                    jobIds: jobs![index].id,
+                    user_id: responseData[index]['userId'],
+                  ),
+                );*/
                   },
                 );
               },
@@ -359,6 +288,8 @@ class _JobSearchPageState extends State<JobSearchPage> {
     );
   }
 }
+
+
 
 class SearchedJobCard extends StatelessWidget {
   final Job job;
@@ -371,7 +302,7 @@ class SearchedJobCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Card(
-        shadowColor: Colors.indigo,
+        shadowColor: Colors.grey,
         color: cardsBackgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),

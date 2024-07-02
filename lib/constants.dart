@@ -9,3 +9,5 @@ const cardsBackgroundColor = Color(0xFFEBE9FF);
 const appFont = 'Montserrat-VariableFont_wght';
 
 const baseUrl = 'http://10.0.2.2:5266/api';
+
+const publicBaseUrl = 'https://careerfusionbackend.smartwaveeg.com';
