@@ -96,9 +96,11 @@ class _SetTimelinePageState extends State<SetTimelinePage> {
                       RichText(
                         text: TextSpan(
                           text: item.description,
+                          
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         maxLines: 3,

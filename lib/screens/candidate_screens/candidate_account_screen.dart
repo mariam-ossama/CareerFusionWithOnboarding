@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:career_fusion/widgets/pdf_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,6 +14,8 @@ import 'package:career_fusion/widgets/candidate_side_menu.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
 import 'package:career_fusion/widgets/custom_job_card.dart';
 import 'package:career_fusion/widgets/custom_menu_card.dart';
+import 'package:signalr_netcore/hub_connection.dart';
+import 'package:signalr_netcore/hub_connection_builder.dart';
 
 class AccountPage extends StatefulWidget {
   AccountPage({Key? key}) : super(key: key);
@@ -23,11 +26,57 @@ class AccountPage extends StatefulWidget {
 
 class _AccountPageState extends State<AccountPage> {
   List<Post> posts = []; // List to store posts
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  String? connectionId;
+  HubConnection? connection;
 
   @override
   void initState() {
     super.initState();
     _fetchPosts(); // Fetch posts when the page initializes
+    initializeSignalR();
+    initializeNotifications();
+  }
+
+  void initializeSignalR() async {
+    connection = HubConnectionBuilder()
+        .withUrl("http://10.0.2.2:5266/notificationHub")
+        .build();
+
+    await connection!.start();
+    print('SignalR Connected.');
+
+    connectionId = (await connection!.invoke('ReceiveNotification')) as String?;
+    print('Connection ID: $connectionId');
+
+
+    connection!.on("ReceiveNotification", (message) {
+      _showNotification(message.toString());
+    });
+  }
+
+
+
+  void initializeNotifications() {
+    var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  Future<void> _showNotification(String message) async {
+    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
+        'career_fusion@2024', 'CareerFusion',
+        importance: Importance.max, priority: Priority.high, ticker: 'ticker');
+    var platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0, 'New Notification', message, platformChannelSpecifics,
+        payload: 'item id 2');
+    print(message);
+  }
+  @override
+  void dispose() {
+    connection?.stop();
+    super.dispose();
   }
 
   Future<void> _fetchPosts() async {

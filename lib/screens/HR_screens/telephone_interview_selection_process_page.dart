@@ -32,7 +32,7 @@ class _TelephoneInterviewSelectionPageState
 
   // Track selected dates for candidates
   List<DateTime?> selectedDates = [];
-
+   String? connectionId;
   @override
   void initState() {
     super.initState();
@@ -41,18 +41,25 @@ class _TelephoneInterviewSelectionPageState
     initializeNotifications();
   }
 
-  void initializeSignalR() async {
+void initializeSignalR() async {
     connection = HubConnectionBuilder()
         .withUrl("http://10.0.2.2:5266/notificationHub")
         .build();
 
     await connection!.start();
     print('SignalR Connected.');
+    
+
+    connectionId = (await connection!.invoke('ReceiveNotification')) as String?;
+    print('Connection ID: $connectionId');
+
 
     connection!.on("ReceiveNotification", (message) {
       _showNotification(message.toString());
     });
   }
+
+
 
   void initializeNotifications() {
     var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -68,9 +75,8 @@ class _TelephoneInterviewSelectionPageState
     await flutterLocalNotificationsPlugin.show(
         0, 'New Notification', message, platformChannelSpecifics,
         payload: 'item id 2');
-        print(message);
+    print(message);
   }
-
   @override
   void dispose() {
     connection?.stop();
@@ -333,6 +339,8 @@ class _TelephoneInterviewSelectionPageState
     print(response.body);
     print(response.statusCode);
 
+    connection?.invoke("SendNotification", args: ["Your telephone interview date has been set"]);
+
     if (response.statusCode == 200) {
       final signalRUrl = 'http://10.0.2.2:5266/notificationHub';
             final signalRResponse = await http.post(
@@ -340,12 +348,15 @@ class _TelephoneInterviewSelectionPageState
               headers: {'Content-Type': 'application/json'},
               body: json.encode({
                 'userId': user_id,
+                'connectionId': connectionId,
                 'message': 'You have passed the telephone interview!'
               }),
             );
             print(user_id);
+            print('ConnectionId: ${connectionId}');
         print(signalRResponse.body);
         print(signalRResponse.statusCode);
+        connection?.invoke("SendNotification", args: ["Your telephone interview date has been set"]);
       print('Interview date set successfully');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Telephone interview Date set successfully')),
