@@ -8,6 +8,8 @@ const cardsBackgroundColor = Color(0xFFEBE9FF);
 
 const appFont = 'Montserrat-VariableFont_wght';
 
+const emulatorUrl = 'http://10.0.2.2:5266/api';
+
 const baseUrl = 'https://careerfusionbackend.smartwaveeg.com/api';
 
 const publicBaseUrl = 'https://careerfusionbackend.smartwaveeg.com';

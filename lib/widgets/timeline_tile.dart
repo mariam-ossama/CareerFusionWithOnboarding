@@ -56,21 +56,23 @@ class CustomTimelineTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               eventCard,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(onPressed: onEdit, icon: Icon(Icons.edit, color: Colors.white)),
-                  IconButton(onPressed: onDelete, icon: Icon(Icons.delete, color: Colors.white)),
-                  Checkbox(
-                    value: item.isChecked,
-                    onChanged: (newValue) {
-                      // Pass index along with the new checkbox value
-                      onCheckboxChanged(newValue);
-                    },
-                    activeColor: Colors.white,
-                    checkColor: mainAppColor,
-                  ),
-                ],
+              Flexible(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(onPressed: onEdit, icon: Icon(Icons.edit, color: Colors.white)),
+                    IconButton(onPressed: onDelete, icon: Icon(Icons.delete, color: Colors.white)),
+                    Checkbox(
+                      value: item.isChecked,
+                      onChanged: (newValue) {
+                        // Pass index along with the new checkbox value
+                        onCheckboxChanged(newValue);
+                      },
+                      activeColor: Colors.white,
+                      checkColor: mainAppColor,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

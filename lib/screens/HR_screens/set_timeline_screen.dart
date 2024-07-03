@@ -91,23 +91,24 @@ class _SetTimelinePageState extends State<SetTimelinePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          text: item.description,
-                          
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
+                 Row(
+  children: [
+    Expanded(
+      child: RichText(
+        text: TextSpan(
+          text: item.description,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+      ),
+    ),
+  ],
+),
                   Text(item.startDate, style: TextStyle(color: Colors.white)),
                   Text(item.endDate, style: TextStyle(color: Colors.white)),
                 ],
@@ -133,53 +134,55 @@ class _SetTimelinePageState extends State<SetTimelinePage> {
                                 //fontFamily: 'Montserrat-VariableFont_wght'
                                 ),
                           ),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              TextField(
-                                controller: descriptionController,
-                                decoration: InputDecoration(
-                                    labelText: 'New Description'),
-                              ),
-                              ListTile(
-                                leading: Icon(Icons.calendar_today),
-                                title: Text(
-                                    'Start Date: ${startDate?.toString() ?? 'Select Start Date'}'),
-                                onTap: () async {
-                                  final DateTime? pickedStartDate =
-                                      await showDatePicker(
-                                    context: context,
-                                    initialDate: startDate ?? DateTime.now(),
-                                    firstDate: DateTime.now(),
-                                    lastDate: DateTime(2100),
-                                  );
-                                  if (pickedStartDate != null) {
-                                    setState(() {
-                                      startDate = pickedStartDate;
-                                    });
-                                  }
-                                },
-                              ),
-                              ListTile(
-                                leading: Icon(Icons.calendar_today),
-                                title: Text(
-                                    'End Date: ${endDate?.toString() ?? 'Select End Date'}'),
-                                onTap: () async {
-                                  final DateTime? pickedEndDate =
-                                      await showDatePicker(
-                                    context: context,
-                                    initialDate: endDate ?? DateTime.now(),
-                                    firstDate: DateTime.now(),
-                                    lastDate: DateTime(2100),
-                                  );
-                                  if (pickedEndDate != null) {
-                                    setState(() {
-                                      endDate = pickedEndDate;
-                                    });
-                                  }
-                                },
-                              ),
-                            ],
+                          content: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  controller: descriptionController,
+                                  decoration: InputDecoration(
+                                      labelText: 'New Description'),
+                                ),
+                                ListTile(
+                                  leading: Icon(Icons.calendar_today),
+                                  title: Text(
+                                      'Start Date: ${startDate?.toString() ?? 'Select Start Date'}'),
+                                  onTap: () async {
+                                    final DateTime? pickedStartDate =
+                                        await showDatePicker(
+                                      context: context,
+                                      initialDate: startDate ?? DateTime.now(),
+                                      firstDate: DateTime.now(),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (pickedStartDate != null) {
+                                      setState(() {
+                                        startDate = pickedStartDate;
+                                      });
+                                    }
+                                  },
+                                ),
+                                ListTile(
+                                  leading: Icon(Icons.calendar_today),
+                                  title: Text(
+                                      'End Date: ${endDate?.toString() ?? 'Select End Date'}'),
+                                  onTap: () async {
+                                    final DateTime? pickedEndDate =
+                                        await showDatePicker(
+                                      context: context,
+                                      initialDate: endDate ?? DateTime.now(),
+                                      firstDate: DateTime.now(),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (pickedEndDate != null) {
+                                      setState(() {
+                                        endDate = pickedEndDate;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                           actions: [
                             ElevatedButton(
