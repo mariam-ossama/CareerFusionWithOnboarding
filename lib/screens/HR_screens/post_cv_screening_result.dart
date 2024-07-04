@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -72,19 +74,20 @@ class _PostCVScreeningResultState extends State<PostCVScreeningResult> {
   }
 
   void _showCandidateContactDialog(CandidateCVScreening cv) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            cv.fileName,
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: mainAppColor,
-            ),
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(
+          cv.fileName,
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: mainAppColor,
           ),
-          content: Column(
+        ),
+        content: SingleChildScrollView(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -105,34 +108,40 @@ class _PostCVScreeningResultState extends State<PostCVScreeningResult> {
                 children: [
                   Icon(Icons.email, color: mainAppColor),
                   SizedBox(width: 7),
-                  Text(
-                    cv.email,
-                    style: TextStyle(
-                      fontSize: 18,
+                  Expanded(
+                    child: Text(
+                      cv.email,
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             ],
           ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('Call'),
-              onPressed: () {
-                _launchPhoneCall(cv.phoneNumber);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Close'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            child: Text('Call'),
+            onPressed: () {
+              _launchPhoneCall(cv.phoneNumber);
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
 
   void _launchPhoneCall(String phoneNumber) async {
     String url = 'tel:$phoneNumber';

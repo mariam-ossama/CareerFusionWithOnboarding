@@ -315,14 +315,14 @@ class SearchedJobCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
+                  /*CircleAvatar(
                     radius: 35,
                     child: Image.asset(
                       job.logoUrl,
                       width: 50,
                       height: 50,
                     ),
-                  ),
+                  ),*/
                   SizedBox(width: 16.0),
                   Expanded(
                     child: Column(
@@ -336,17 +336,29 @@ class SearchedJobCard extends StatelessWidget {
                             //fontFamily: appFont,
                           ),
                         ),
-                        Text(
-                          job.location,
-                          style: TextStyle(
-                              //fontFamily: appFont,
-                              ),
+                        Row(
+                          children: [
+                            Icon(Icons.location_pin, color: mainAppColor,size: 20.0,),
+                            SizedBox(width: 5,),
+                            Text(
+                              job.location,
+                              style: TextStyle(
+                                  //fontFamily: appFont,
+                                  ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          job.type,
-                          style: TextStyle(
-                              //fontFamily: appFont,
-                              ),
+                        Row(
+                          children: [
+                            Icon(Icons.work_outline, color: mainAppColor,size: 20.0,),
+                            SizedBox(width: 5,),
+                            Text(
+                              job.type,
+                              style: TextStyle(
+                                  //fontFamily: appFont,
+                                  ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

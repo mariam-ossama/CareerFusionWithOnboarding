@@ -170,51 +170,54 @@ class _TecnicalInterviewResultPageState
               color: mainAppColor,
             ),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Row(
-                children: [
-                  Icon(Icons.phone, color: mainAppColor),
-                  SizedBox(width: 7),
-                  Text(
-                    candidateInfo['phoneNumber'] ?? 'N/A',
-                    style: TextStyle(
-                      fontSize: 14,
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Row(
+                  children: [
+                    Icon(Icons.phone, color: mainAppColor),
+                    SizedBox(width: 7),
+                    Text(
+                      candidateInfo['phoneNumber'] ?? 'N/A',
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                children: [
-                  Icon(Icons.email, color: mainAppColor),
-                  SizedBox(width: 7),
-                  Text(
-                    candidateInfo['email'] ?? 'N/A',
-                    style: TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                children: [
-                  Icon(Icons.description, color: mainAppColor),
-                  SizedBox(width: 7),
-                  Expanded(
-                    child: Text(
-                      candidate.filePath,
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(Icons.email, color: mainAppColor),
+                    SizedBox(width: 7),
+                    Text(
+                      candidateInfo['email'] ?? 'N/A',
                       style: TextStyle(
                         fontSize: 14,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(Icons.description, color: mainAppColor),
+                    SizedBox(width: 7),
+                    Expanded(
+                      child: Text(
+                        candidate.filePath,
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(

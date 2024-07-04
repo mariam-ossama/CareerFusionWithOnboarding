@@ -107,50 +107,65 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                           if (profilePicturePath != null) ...[
                             CircleAvatar(
                               radius: 35,
-                              backgroundImage: NetworkImage('http://10.0.2.2:5266${profilePicturePath}'),
+                              backgroundImage: NetworkImage('${publicDomain}${profilePicturePath}'),
                             ),
                             SizedBox(width: 10),
                           ],
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                companyData['fullName'] ?? 'Company Name',
-                                style: TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  companyData['fullName'] ?? 'Company Name',
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  Icon(Icons.email, size: 16, color: Colors.grey),
-                                  SizedBox(width: 5),
-                                  Text(
-                                    companyData['email'] ?? 'Email',
-                                    style: TextStyle(
-                                      fontSize: 16.0,
-                                      color: Colors.grey,
+                                Row(
+                                  children: <Widget>[
+                                    Icon(Icons.email, size: 16, color: Colors.grey),
+                                    SizedBox(width: 5),
+                                    Expanded(
+                                      child: Text(
+                                        companyData['email'] ?? 'Email',
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                          color: Colors.grey,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  Icon(Icons.location_on, size: 16, color: Colors.grey),
-                                  SizedBox(width: 5),
-                                  Text(
-                                    jobDetails['jobLocation'] ?? 'Location',
-                                    style: TextStyle(
-                                      fontSize: 16.0,
-                                      color: Colors.grey,
+                                  ],
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Icon(Icons.location_on, size: 16, color: Colors.grey),
+                                    SizedBox(width: 5),
+                                    Expanded(
+                                      child: Text(
+                                        jobDetails['jobLocation'] ?? 'Location',
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                          color: Colors.grey,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                          Spacer(),
                         ],
+                      ),
+                      SizedBox(height: 16.0),
+                      Text(
+                        'Job Description:',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       SizedBox(height: 16.0),
                       Text(

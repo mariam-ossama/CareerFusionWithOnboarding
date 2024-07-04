@@ -44,7 +44,7 @@ class CustomMenuCard extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 16.0,
+                  fontSize: 14.0,
                   //fontFamily: appFont,
                   color: fontColor, // Change the text color here
                 ),

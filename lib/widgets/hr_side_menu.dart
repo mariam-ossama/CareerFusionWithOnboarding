@@ -24,14 +24,14 @@ class HRSideMenu extends StatelessWidget {
               ),
             ),
           ),
-          ListTile(
+          /*ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Home',style: TextStyle(//fontFamily: appFont
             ),),
             onTap: () {
               Navigator.of(context).pop();
             },
-          ),
+          ),*/
           ListTile(
             leading: const Icon(Icons.verified_user),
             title: const Text('Profile',style: TextStyle(//fontFamily: appFont
@@ -41,7 +41,7 @@ class HRSideMenu extends StatelessWidget {
               Navigator.pushNamed(context, 'HRProfilePage');
             },
           ),
-          ListTile(
+          /*ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Settings',style: TextStyle(//fontFamily: appFont
             ),),
@@ -56,13 +56,14 @@ class HRSideMenu extends StatelessWidget {
             onTap: () {
               Navigator.of(context).pop();
             },
-          ),
+          ),*/
           ListTile(
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Logout',style: TextStyle(//fontFamily: appFont
             ),),
             onTap: () {
               Navigator.of(context).pop();
+              Navigator.pushNamed(context, 'WelcomePage');
             },
           ),
         ],

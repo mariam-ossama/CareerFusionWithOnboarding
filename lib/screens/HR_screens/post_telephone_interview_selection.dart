@@ -137,6 +137,9 @@ class _PostTelephoneInterviewSelectionProcessPageState
       body: json.encode(candidateEmails),
     );
 
+    print(response.body);
+    print(response.statusCode);
+
     if (response.statusCode == 200) {
       print('Successfully updated screened candidates');
     } else {
@@ -288,61 +291,64 @@ class _PostTelephoneInterviewSelectionProcessPageState
                 color: mainAppColor,
               ),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  children: [
-                    Icon(Icons.phone, color: mainAppColor),
-                    SizedBox(width: 7),
-                    Text(
-                      contactInfo.phoneNumber ?? 'Phone number not available',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    SizedBox(width: 10),
-                    /*ElevatedButton(
-                      onPressed: () => _callCandidate(contactInfo.phoneNumber),
-                      style: ElevatedButton.styleFrom(
-                        primary: mainAppColor, // Background color
-                        onPrimary: Colors.white, // Text color
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                      child: Text('Call'),
-                    ),*/
-                  ],
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    Icon(Icons.email, color: mainAppColor),
-                    SizedBox(width: 7),
-                    Text(
-                      contactInfo.email ?? 'Email not available',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                if (contactInfo.filePath != null)
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
                   Row(
                     children: [
-                      Icon(Icons.description, color: mainAppColor),
+                      Icon(Icons.phone, color: mainAppColor),
                       SizedBox(width: 7),
-                      GestureDetector(
-                        onTap: () {
-                          _launchURL(contactInfo.filePath!);
-                        },
-                        child: Text(
-                          'View CV',
-                          style: TextStyle(fontSize: 18),
+                      Text(
+                        contactInfo.phoneNumber ?? 'Phone number not available',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      SizedBox(width: 10),
+                      /*ElevatedButton(
+                        onPressed: () => _callCandidate(contactInfo.phoneNumber),
+                        style: ElevatedButton.styleFrom(
+                          primary: mainAppColor, // Background color
+                          onPrimary: Colors.white, // Text color
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
+                        child: Text('Call'),
+                      ),*/
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(Icons.email, color: mainAppColor),
+                      SizedBox(width: 7),
+                      Text(
+                        contactInfo.email ?? 'Email not available',
+                        style: TextStyle(fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
-              ],
+                  SizedBox(height: 10),
+                  if (contactInfo.filePath != null)
+                    Row(
+                      children: [
+                        Icon(Icons.description, color: mainAppColor),
+                        SizedBox(width: 7),
+                        GestureDetector(
+                          onTap: () {
+                            _launchURL(contactInfo.filePath!);
+                          },
+                          child: Text(
+                            'View CV',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
             ),
             actions: <Widget>[
               TextButton(

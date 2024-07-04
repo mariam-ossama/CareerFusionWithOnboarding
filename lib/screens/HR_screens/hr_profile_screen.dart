@@ -319,7 +319,7 @@ class _UserProfilePageState extends State<HRProfilePage> {
                     (BuildContext context, AsyncSnapshot<String?> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircleAvatar(
-                      radius: 60,
+                      radius: 80,
                       backgroundColor: Colors.grey.shade300,
                       child: CircularProgressIndicator(
                         color: Colors.white,
@@ -327,7 +327,7 @@ class _UserProfilePageState extends State<HRProfilePage> {
                     );
                   } else if (snapshot.hasError || snapshot.data == null) {
                     return CircleAvatar(
-                      radius: 60,
+                      radius: 80,
                       backgroundColor: Colors.grey,
                       child: Icon(Icons.person, size: 60),
                     );

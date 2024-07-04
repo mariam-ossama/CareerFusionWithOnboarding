@@ -327,38 +327,41 @@ class _TelephonInterviewResultPageState
                 color: mainAppColor, // Replace with your app's color
               ),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  children: [
-                    Icon(Icons.phone,
-                        color: mainAppColor), // Replace with your app's color
-                    SizedBox(width: 7),
-                    Text(
-                      candidatePhoneNumber,
-                      style: TextStyle(
-                        fontSize: 18,
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: [
+                      Icon(Icons.phone,
+                          color: mainAppColor), // Replace with your app's color
+                      SizedBox(width: 7),
+                      Text(
+                        candidatePhoneNumber,
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                    Icon(Icons.email,
-                        color: mainAppColor), // Replace with your app's color
-                    SizedBox(width: 7),
-                    Text(
-                      data['email'],
-                      style: TextStyle(
-                        fontSize: 18,
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(Icons.email,
+                          color: mainAppColor), // Replace with your app's color
+                      SizedBox(width: 7),
+                      Text(
+                        data['email'],
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
             actions: <Widget>[
               TextButton(

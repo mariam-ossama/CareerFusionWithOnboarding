@@ -193,35 +193,38 @@ void initializeSignalR() async {
                   color: mainAppColor,
                 ),
               ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Row(
-                    children: [
-                      Icon(Icons.phone, color: mainAppColor),
-                      SizedBox(width: 7),
-                      Text(
-                        '${data['phoneNumber']}',
-                        style: TextStyle(
-                          fontSize: 14,
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Row(
+                      children: [
+                        Icon(Icons.phone, color: mainAppColor),
+                        SizedBox(width: 7),
+                        Text(
+                          '${data['phoneNumber']}',
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Icon(Icons.email, color: mainAppColor),
-                      SizedBox(width: 7),
-                      Text(
-                        '${data['email']}',
-                        style: TextStyle(
-                          fontSize: 14,
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(Icons.email, color: mainAppColor),
+                        SizedBox(width: 7),
+                        Text(
+                          '${data['email']}',
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
               actions: <Widget>[
                 TextButton(

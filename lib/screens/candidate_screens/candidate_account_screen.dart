@@ -196,7 +196,7 @@ class _AccountPageState extends State<AccountPage> {
                   iconColor: mainAppColor,
                   fontColor: mainAppColor,
                   color: secondColor,
-                  title: 'Open Positions',
+                  title: 'Vacancies',
                   iconData: Icons.announcement,
                   onTap: () {
                     Navigator.pushNamed(
@@ -241,7 +241,7 @@ class _AccountPageState extends State<AccountPage> {
                                           .userProfilePicturePath!
                                           .isNotEmpty
                                   ? NetworkImage(
-                                      'http://10.0.2.2:5266${posts[index].userProfilePicturePath}')
+                                      '${publicDomain}${posts[index].userProfilePicturePath}')
                                   : AssetImage('assets/images/111.avif')
                                       as ImageProvider,
                             ),

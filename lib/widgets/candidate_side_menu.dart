@@ -26,13 +26,13 @@ class CandidateSideMenu extends StatelessWidget {
                  ),
             ),
           ),
-          ListTile(
+          /*ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Home'),
             onTap: () {
               Navigator.of(context).pop();
             },
-          ),
+          ),*/
           ListTile(
             leading: const Icon(Icons.verified_user),
             title: const Text('Profile',
@@ -43,7 +43,7 @@ class CandidateSideMenu extends StatelessWidget {
               Navigator.pushNamed(context, 'CandidateProfilePage');
             },
           ),
-          ListTile(
+          /*ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Settings',style: TextStyle(//fontFamily: appFont
             ),),
@@ -58,13 +58,14 @@ class CandidateSideMenu extends StatelessWidget {
             onTap: () {
               Navigator.of(context).pop();
             },
-          ),
+          ),*/
           ListTile(
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Logout',style: TextStyle(//fontFamily: appFont
             ),),
             onTap: () {
               Navigator.of(context).pop();
+              Navigator.pushNamed(context, 'WelcomePage');
             },
           ),
         ],

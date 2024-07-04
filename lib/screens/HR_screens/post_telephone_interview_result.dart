@@ -183,36 +183,39 @@ class _PostTelephoneInterviewResultPageState
                                     color: mainAppColor,
                                   ),
                                 ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Row(
-                                      children: [
-                                        Icon(Icons.phone, color: mainAppColor),
-                                        SizedBox(width: 7),
-                                        Text(
-                                          candidates[index]['phoneNumber'],
-                                          style: TextStyle(
-                                            fontSize: 16,
+                                content: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Row(
+                                        children: [
+                                          Icon(Icons.phone, color: mainAppColor),
+                                          SizedBox(width: 7),
+                                          Text(
+                                            candidates[index]['phoneNumber'],
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 10),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.email, color: mainAppColor),
-                                        SizedBox(width: 7),
-                                        Text(
-                                          candidates[index]['email'],
-                                          style: TextStyle(
-                                            fontSize: 16,
+                                        ],
+                                      ),
+                                      SizedBox(height: 10),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.email, color: mainAppColor),
+                                          SizedBox(width: 7),
+                                          Text(
+                                            candidates[index]['email'],
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 actions: <Widget>[
                                   TextButton(

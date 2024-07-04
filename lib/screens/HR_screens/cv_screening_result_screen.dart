@@ -264,36 +264,39 @@ class _CVScreeningResultPageState extends State<CVScreeningResultPage> {
                         color: mainAppColor,
                       ),
                     ),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(
-                          children: [
-                            Icon(Icons.phone, color: mainAppColor),
-                            SizedBox(width: 7),
-                            Text(
-                              candidate.phoneNumber,
-                              style: TextStyle(
-                                fontSize: 18,
+                    content: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: [
+                              Icon(Icons.phone, color: mainAppColor),
+                              SizedBox(width: 7),
+                              Text(
+                                candidate.phoneNumber,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Icon(Icons.email, color: mainAppColor),
-                            SizedBox(width: 7),
-                            Text(
-                              candidate.email,
-                              style: TextStyle(
-                                fontSize: 18,
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Icon(Icons.email, color: mainAppColor),
+                              SizedBox(width: 7),
+                              Text(
+                                candidate.email,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                     actions: <Widget>[
                       TextButton(

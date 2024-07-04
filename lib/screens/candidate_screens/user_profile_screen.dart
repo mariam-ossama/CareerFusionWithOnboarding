@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class UserProfilePage extends StatefulWidget {
   UserProfilePage({Key? key}) : super(key: key);
@@ -200,25 +201,34 @@ class _MyWidgetState extends State<UserProfilePage> {
 
   Future<void> downloadCV() async {
     try {
-      final response = await http
-          .get(Uri.parse('${baseUrl}/UserProfile/download-file'));
+      final response = await http.get(Uri.parse('${baseUrl}/UserProfile/download-file'));
 
       if (response.statusCode == 200) {
-        final directory = await getExternalStorageDirectory();
-        final downloadsPath = '${directory!.path}/Download';
-        final filePath = '$downloadsPath/CV.docx';
-        final file = File(filePath);
-        print(filePath);
+        // Request permission to write to external storage
+        PermissionStatus permission = await Permission.storage.request();
 
-        if (!Directory(downloadsPath).existsSync()) {
-          Directory(downloadsPath).createSync(recursive: true);
+        if (permission.isGranted) {
+          // Get the directory for the external storage
+          final directory = await getExternalStorageDirectory();
+          final downloadsPath = '${directory!.path}/Download';
+          final filePath = '$downloadsPath/CV.docx';
+          final file = File(filePath);
+          print(file);
+
+          if (!Directory(downloadsPath).existsSync()) {
+            Directory(downloadsPath).createSync(recursive: true);
+          }
+
+          await file.writeAsBytes(response.bodyBytes);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('CV template downloaded successfully to $filePath')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Permission denied to write to external storage')),
+          );
         }
-
-        await file.writeAsBytes(response.bodyBytes);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('CV template downloaded successfully')),
-        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to download CV')),
