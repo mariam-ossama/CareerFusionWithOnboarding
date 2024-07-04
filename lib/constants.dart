@@ -13,5 +13,3 @@ const emulatorUrl = 'http://10.0.2.2:5266/api';
 const baseUrl = 'http://10.0.2.2:5266/api';
 
 const publicDomain = 'https://careerfusionbackend.smartwaveeg.com';
-
-
