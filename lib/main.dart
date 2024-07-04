@@ -63,10 +63,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
-  final bool onboardingCompleted =
-      prefs.getBool('onboarding_completed') ?? false;
-
-  runApp(CareerFusion(onboardingCompleted: onboardingCompleted));
+  final bool onboardingCompleted = prefs.getBool('onboarding_completed') ?? false;
+  final String? token = prefs.getString('token');
+  final List<String>? roles = prefs.getStringList('roles');
 
   runApp(MultiProvider(
     providers: [
@@ -75,14 +74,16 @@ void main() async {
       ),
       // Add other providers if needed
     ],
-    child: CareerFusion(onboardingCompleted: onboardingCompleted),
+    child: CareerFusion(onboardingCompleted: onboardingCompleted, token: token, roles: roles),
   ));
 }
 
 class CareerFusion extends StatelessWidget {
   final bool onboardingCompleted;
+  final String? token;
+  final List<String>? roles;
 
-  const CareerFusion({super.key, required this.onboardingCompleted});
+  const CareerFusion({super.key, required this.onboardingCompleted, this.token, this.roles});
 
   // This widget is the root of your application.
   @override

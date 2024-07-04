@@ -143,9 +143,9 @@ class _LoginPageState extends State<LoginPage> {
               height: 8,
             ),
             Row(
-              //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Checkbox(
+                /*Checkbox(
                   value: _checkIfIsLogged,
                   onChanged: (value) {
                     setState(() {
@@ -161,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(
                   width: 90,
-                ),
+                ),*/
                 TextButton(
                   onPressed: () {
                     Navigator.push(
@@ -310,6 +310,7 @@ void loginUser(String email, String password, BuildContext context) async {
       await SharedPreferences.getInstance().then((prefs) {
         prefs.setString('token', token);
         prefs.setString('userId', userId);
+        prefs.setStringList('roles', roles);
       });
 
       if (roles.contains('HR')) {
