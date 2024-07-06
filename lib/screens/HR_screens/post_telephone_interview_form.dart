@@ -83,6 +83,7 @@ class _PostTelephoneInterviewFormState
     if (response.statusCode == 200) {
       setState(() {
         questions.add(PostTelephoneInterviewQuestion(question: questionText));
+        fetchQuestions();
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -90,6 +91,7 @@ class _PostTelephoneInterviewFormState
           backgroundColor: Colors.green,
         ),
       );
+      
       print('Question added successfully');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

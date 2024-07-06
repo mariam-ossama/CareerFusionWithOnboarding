@@ -241,7 +241,7 @@ class _AccountPageState extends State<AccountPage> {
                                           .userProfilePicturePath!
                                           .isNotEmpty
                                   ? NetworkImage(
-                                      '${publicDomain}${posts[index].userProfilePicturePath}')
+                                      'http://10.0.2.2:5266${posts[index].userProfilePicturePath}')
                                   : AssetImage('assets/images/111.avif')
                                       as ImageProvider,
                             ),

@@ -174,8 +174,12 @@ class _PostTechnicalInterviewResultPageState
         // Save the Excel file to device storage
         final bytes = response.bodyBytes;
         final directory = await getExternalStorageDirectory();
-        final filePath = '${directory!.path}/Technical_Interview_Passed.xlsx';
-        await File(filePath).writeAsBytes(bytes);
+        final documentsDirectory =
+              await Directory('${directory!.path}/Documents')
+                  .create(recursive: true);
+          final filePath = '${documentsDirectory.path}/Technical_interview_results.xlsx';
+          File file = File(filePath);
+          await file.writeAsBytes(bytes);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Excel file downloaded to Downloads directory.'),

@@ -107,7 +107,7 @@ class _JobDetailsPageState extends State<JobDetailsPage> {
                           if (profilePicturePath != null) ...[
                             CircleAvatar(
                               radius: 35,
-                              backgroundImage: NetworkImage('${publicDomain}${profilePicturePath}'),
+                              backgroundImage: NetworkImage('http://10.0.2.2:5266${profilePicturePath}'),
                             ),
                             SizedBox(width: 10),
                           ],

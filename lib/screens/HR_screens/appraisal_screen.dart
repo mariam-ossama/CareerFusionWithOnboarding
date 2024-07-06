@@ -3,6 +3,7 @@ import 'package:career_fusion/constants.dart';
 import 'package:career_fusion/models/employee.dart';
 import 'package:career_fusion/models/goal.dart';
 import 'package:career_fusion/screens/HR_screens/employee_evaluation_form_screen.dart';
+import 'package:career_fusion/screens/HR_screens/employee_evaluation_form_screen1.dart';
 import 'package:career_fusion/widgets/custom_button.dart';
 import 'package:career_fusion/widgets/custom_employee_card.dart';
 import 'package:flutter/material.dart';
@@ -20,15 +21,17 @@ class _CompanyEmployeesPageState extends State<CompanyEmployeesPage> {
   List<Employee> employees = [];
   bool isLoading = true;
   List<Goal?> goals = [];
+  List<dynamic> postEmployees= [];
 
   @override
   void initState() {
     super.initState();
     fetchGoals();
-    fetchEmployees();
+    fetchJobFormEmployees();
+    fetchPostEmployees();
   }
 
-  Future<void> fetchEmployees() async {
+  Future<void> fetchJobFormEmployees() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getString('userId');
@@ -49,6 +52,36 @@ class _CompanyEmployeesPageState extends State<CompanyEmployeesPage> {
         });
       } else {
         throw Exception("Failed to load employees");
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print(e.toString());
+    }
+  }
+  Future<void> fetchPostEmployees() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('userId');
+      if (userId == null) {
+        throw Exception("User ID not found in shared preferences");
+      }
+
+      final url = '${baseUrl}/CVUpload/$userId/technical-interview-passed/all-posts';
+      final response = await http.get(Uri.parse(url));
+
+      print(response.statusCode);
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          postEmployees = List<Map<String, dynamic>>.from(data);
+          isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to load post employees");
       }
     } catch (e) {
       setState(() {
@@ -177,25 +210,88 @@ class _CompanyEmployeesPageState extends State<CompanyEmployeesPage> {
           buildGoalsForm(),
           isLoading
               ? Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  itemCount: employees.length,
-                  itemBuilder: (context, index) {
-                    return EmployeeCard(
-                      employee_name: employees[index].userFullName!,
-                      employee_email: employees[index].userEmail!,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EvaluationFormPage( employee: employees[index],),
-                          ),
-                        );
-                      },
-                    );
-                  },
+              : ListView(
+                  children: [
+                    buildJobFormEmployeeList("Job Form Employees", employees),
+                    buildPostEmployeeList("Post Employees", postEmployees),
+                  ],
                 ),
         ]),
       ),
+    );
+  }
+
+  Widget buildJobFormEmployeeList(String title, List<Employee> employees) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: employees.length,
+          itemBuilder: (context, index) {
+            return EmployeeCard(
+              employee_name: employees[index].userFullName!,
+              employee_email: employees[index].userEmail!,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EvaluationFormPage(employee: employees[index]),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget buildPostEmployeeList(String title, List<dynamic> employees) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: postEmployees.length,
+          itemBuilder: (context, index) {
+            return EmployeeCard(
+              employee_name: postEmployees[index]['userFullName'],
+              employee_email: postEmployees[index]['userEmail'],
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PostEmployeeEvaluationFormPage(employee: postEmployees[index]),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 

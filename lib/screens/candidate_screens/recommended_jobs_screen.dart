@@ -27,9 +27,12 @@ class _RecommendedJobsPageState extends State<RecommendedJobsPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('userId');
     final url = Uri.parse('http://10.0.2.2:5000/recommend-jobs/${userId}');
+    
 
     try {
       final response = await http.get(url);
+      print(response.statusCode);
+      print(response.body);
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as List;
         setState(() {

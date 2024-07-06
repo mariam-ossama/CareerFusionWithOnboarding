@@ -80,8 +80,7 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<String>? cvs =
-        selectedPosition != null ? positionCVs[selectedPosition!] : [];
+    List<String>? cvs = selectedPosition != null ? positionCVs[selectedPosition!] : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -102,7 +101,7 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
             child: Container(
               width: 370,
               decoration: ShapeDecoration(
-                color: secondColor, // Replace with your app's color
+                color: secondColor,
                 shape: RoundedRectangleBorder(
                   side: BorderSide(
                     width: 1.0,
@@ -118,17 +117,15 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
                 isExpanded: true,
                 value: selectedPosition,
                 onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      selectedPosition = newValue;
-                      if (selectedPosition != null) {
-                        print('Selected job title: $selectedPosition');
-                        _fetchCVsByTitle(selectedPosition!);
-                      } else {
-                        print('No matching position found');
-                      }
-                    });
-                  }
+                  setState(() {
+                    selectedPosition = newValue;
+                    if (selectedPosition != null) {
+                      print('Selected job title: $selectedPosition');
+                      _fetchCVsByTitle(selectedPosition!);
+                    } else {
+                      print('No matching position found');
+                    }
+                  });
                 },
                 items: positions
                     .map<DropdownMenuItem<String>>((Position position) {
@@ -139,7 +136,7 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
                         position.title,
                         style: TextStyle(
                           fontSize: 20,
-                          color: mainAppColor, // Replace with your app's color
+                          color: mainAppColor,
                         ),
                       ),
                     ),
@@ -150,7 +147,7 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
                     'Choose Position',
                     style: TextStyle(
                       fontSize: 20,
-                      color: mainAppColor, // Replace with your app's color
+                      color: mainAppColor,
                     ),
                   ),
                 ),
@@ -161,38 +158,38 @@ class _ExistingCVsPageState extends State<ExistingCVsPage> {
             height: 20,
           ),
           Expanded(
-            child: cvs!.isEmpty
+            child: cvs == null
                 ? Center(
                     child: Text(
                       'No results found',
                       style: TextStyle(fontSize: 18, color: Colors.grey),
                     ),
                   )
-                :ListView.builder(
-              itemCount: cvs.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  shadowColor: Colors.grey[500],
-                  color: Color.fromARGB(255, 235, 233, 255),
-                  margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  elevation: 2,
-                  child: ListTile(
-                    tileColor: const Color.fromARGB(240, 240, 240, 255),
-                    leading: Icon(
-                      Icons.description,
-                      color: mainAppColor,
-                    ),
-                    title: Text(
-                      cvs![index],
-                      style: TextStyle(
-                          fontFamily: appFont,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold),
-                    ),
+                : ListView.builder(
+                    itemCount: cvs.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        shadowColor: Colors.grey[500],
+                        color: Color.fromARGB(255, 235, 233, 255),
+                        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        elevation: 2,
+                        child: ListTile(
+                          tileColor: const Color.fromARGB(240, 240, 240, 255),
+                          leading: Icon(
+                            Icons.description,
+                            color: mainAppColor,
+                          ),
+                          title: Text(
+                            cvs[index],
+                            style: TextStyle(
+                                fontFamily: appFont,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),

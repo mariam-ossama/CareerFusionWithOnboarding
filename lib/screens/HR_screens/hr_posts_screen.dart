@@ -83,7 +83,7 @@ class _HRPostsPageState extends State<HRPostsPage> {
                                 CircleAvatar(
                                   radius: 20,
                                   backgroundImage: NetworkImage(
-                                    '${publicDomain}${post.userProfilePicturePath}',
+                                    'http://10.0.2.2:5266${post.userProfilePicturePath}',
                                   ),
                                 ),
                               SizedBox(

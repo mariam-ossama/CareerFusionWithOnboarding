@@ -260,7 +260,7 @@ class _TecnicalInterviewResultPageState
               documentsDirectory.createSync(recursive: true);
             }
 
-            final file = File('$documentsPath/telephone_interview_result.xlsx');
+            final file = File('$documentsPath/technical_interview_result.xlsx');
             await file.writeAsBytes(bytes);
 
             setState(() {

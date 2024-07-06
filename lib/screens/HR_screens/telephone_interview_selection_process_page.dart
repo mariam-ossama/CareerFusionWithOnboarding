@@ -122,6 +122,7 @@ void initializeSignalR() async {
     final url = '${baseUrl}/OpenPosCV/screened/$jobFormId';
     final response = await http.get(Uri.parse(url));
     print(response.statusCode);
+    print(response.body);
 
     if (response.statusCode == 200) {
       try {
@@ -457,8 +458,11 @@ void initializeSignalR() async {
                       onChanged: (String? newValue) {
                         if (newValue != null) {
                           setState(() {
-                            selectedPosition = newValue;
-                            fetchCandidates(int.parse(newValue));
+                           candidates.clear();
+  selectedCandidates.clear();
+  selectedDates.clear();
+  selectedPosition = newValue;
+  fetchCandidates(int.parse(newValue));
                           });
                         }
                       },
@@ -475,6 +479,7 @@ void initializeSignalR() async {
                               ),
                             ),
                           ),
+                          
                         );
                       }).toList(),
                       hint: Center(

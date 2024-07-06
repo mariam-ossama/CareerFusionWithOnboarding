@@ -102,10 +102,10 @@ class _PostTelephoneInterviewResultPageState
         final bytes = response.bodyBytes;
         final directory = await getExternalStorageDirectory();
         if (directory != null) {
-          final downloadsDirectory =
-              await Directory('${directory.path}/Downloads')
+          final documentsDirectory =
+              await Directory('${directory.path}/Documents')
                   .create(recursive: true);
-          final filePath = '${downloadsDirectory.path}/interview_results.xlsx';
+          final filePath = '${documentsDirectory.path}/Telephone_interview_results.xlsx';
           File file = File(filePath);
           await file.writeAsBytes(bytes);
 
