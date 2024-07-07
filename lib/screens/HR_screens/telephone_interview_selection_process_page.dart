@@ -10,7 +10,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 class TelephoneInterviewSelectionPage extends StatefulWidget {
-  
   @override
   _TelephoneInterviewSelectionPageState createState() =>
       _TelephoneInterviewSelectionPageState();
@@ -18,7 +17,8 @@ class TelephoneInterviewSelectionPage extends StatefulWidget {
 
 class _TelephoneInterviewSelectionPageState
     extends State<TelephoneInterviewSelectionPage> {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   HubConnection? connection;
   String? selectedPosition; // Selected position from dropdown menu
   List<Position> positions = []; // List to store fetched positions
@@ -32,38 +32,36 @@ class _TelephoneInterviewSelectionPageState
 
   // Track selected dates for candidates
   List<DateTime?> selectedDates = [];
-   String? connectionId;
+  String? connectionId;
   @override
   void initState() {
     super.initState();
     fetchPositions();
-     initializeSignalR();
+    initializeSignalR();
     initializeNotifications();
   }
 
-void initializeSignalR() async {
+  void initializeSignalR() async {
     connection = HubConnectionBuilder()
-        .withUrl("http://10.0.2.2:5266/notificationHub")
+        .withUrl("https://careerfusionbackend.smartwaveeg.com/notificationHub")
         .build();
 
     await connection!.start();
     print('SignalR Connected.');
-    
 
     connectionId = (await connection!.invoke('ReceiveNotification')) as String?;
     print('Connection ID: $connectionId');
-
 
     connection!.on("ReceiveNotification", (message) {
       _showNotification(message.toString());
     });
   }
 
-
-
   void initializeNotifications() {
-    var initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-    var initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    var initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    var initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
@@ -71,18 +69,19 @@ void initializeSignalR() async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
         'career_fusion@2024', 'CareerFusion',
         importance: Importance.max, priority: Priority.high, ticker: 'ticker');
-    var platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+    var platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
     await flutterLocalNotificationsPlugin.show(
         0, 'New Notification', message, platformChannelSpecifics,
         payload: 'item id 2');
     print(message);
   }
+
   @override
   void dispose() {
     connection?.stop();
     super.dispose();
   }
-
 
   Future<void> fetchPositions() async {
     final prefs = await SharedPreferences.getInstance();
@@ -264,8 +263,10 @@ void initializeSignalR() async {
     }
   }
 
-  Future<void> toggleTelephoneInterviewStatus(int jobFormId, int cvId, bool isChecked) async {
-    final url = '${baseUrl}/OpenPosCV/$jobFormId/$cvId/toggle-telephone-interview';
+  Future<void> toggleTelephoneInterviewStatus(
+      int jobFormId, int cvId, bool isChecked) async {
+    final url =
+        '${baseUrl}/OpenPosCV/$jobFormId/$cvId/toggle-telephone-interview';
     final response = await http.put(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
@@ -276,29 +277,29 @@ void initializeSignalR() async {
     print(response.statusCode);
 
     if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Candidate is set as passed successfully')),
+      final Map<String, dynamic> data = json.decode(response.body);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Candidate is set as passed successfully')),
+      );
+      if (data['success']) {
+        // Send notification via SignalR
+        final signalRUrl = '${baseUrl}/notificationHub';
+        final signalRResponse = await http.post(
+          Uri.parse(signalRUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'userId': data['userId'],
+            'message': 'You have passed the telephone interview!'
+          }),
         );
-        if (data['success']) {
-            // Send notification via SignalR
-            final signalRUrl = '${baseUrl}/notificationHub';
-            final signalRResponse = await http.post(
-              Uri.parse(signalRUrl),
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                'userId': data['userId'],
-                'message': 'You have passed the telephone interview!'
-              }),
-            );
-            print(signalRResponse.body);
-            print(signalRResponse.statusCode);
-        }
+        print(signalRResponse.body);
+        print(signalRResponse.statusCode);
+      }
     } else {
-        print('Failed to toggle telephone interview status: ${response.statusCode}');
+      print(
+          'Failed to toggle telephone interview status: ${response.statusCode}');
     }
-}
-
+  }
 
   Future<void> _selectDate(BuildContext context, int index) async {
     DateTime? pickedDate = await showDatePicker(
@@ -343,29 +344,30 @@ void initializeSignalR() async {
     print(response.body);
     print(response.statusCode);
 
-    connection?.invoke("SendNotification", args: ["Your telephone interview date has been set"]);
+    connection?.invoke("SendNotification",
+        args: ["Your telephone interview date has been set"]);
 
     if (response.statusCode == 200) {
       final signalRUrl = 'http://10.0.2.2:5266/notificationHub';
-            final signalRResponse = await http.post(
-              Uri.parse(signalRUrl),
-              headers: {'Content-Type': 'application/json'},
-              body: json.encode({
-                'userId': user_id,
-                'connectionId': connectionId,
-                'message': 'You have passed the telephone interview!'
-              }),
-            );
-            print(user_id);
-            print('ConnectionId: ${connectionId}');
-        print(signalRResponse.body);
-        print(signalRResponse.statusCode);
-        connection?.invoke("SendNotification", args: ["Your telephone interview date has been set"]);
+      final signalRResponse = await http.post(
+        Uri.parse(signalRUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'userId': user_id,
+          'connectionId': connectionId,
+          'message': 'You have passed the telephone interview!'
+        }),
+      );
+      print(user_id);
+      print('ConnectionId: ${connectionId}');
+      print(signalRResponse.body);
+      print(signalRResponse.statusCode);
+      connection?.invoke("SendNotification",
+          args: ["Your telephone interview date has been set"]);
       print('Interview date set successfully');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Telephone interview Date set successfully')),
       );
-
     } else {
       print('Failed to set interview date: ${response.statusCode}');
     }
@@ -458,11 +460,11 @@ void initializeSignalR() async {
                       onChanged: (String? newValue) {
                         if (newValue != null) {
                           setState(() {
-                           candidates.clear();
-  selectedCandidates.clear();
-  selectedDates.clear();
-  selectedPosition = newValue;
-  fetchCandidates(int.parse(newValue));
+                            candidates.clear();
+                            selectedCandidates.clear();
+                            selectedDates.clear();
+                            selectedPosition = newValue;
+                            fetchCandidates(int.parse(newValue));
                           });
                         }
                       },
@@ -479,7 +481,6 @@ void initializeSignalR() async {
                               ),
                             ),
                           ),
-                          
                         );
                       }).toList(),
                       hint: Center(

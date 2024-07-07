@@ -14,10 +14,12 @@ class TelephoneInterviewFormPage extends StatefulWidget {
   TelephoneInterviewFormPage({required this.jobId, required this.jobTitle});
 
   @override
-  _TelephoneInterviewFormPageState createState() => _TelephoneInterviewFormPageState();
+  _TelephoneInterviewFormPageState createState() =>
+      _TelephoneInterviewFormPageState();
 }
 
-class _TelephoneInterviewFormPageState extends State<TelephoneInterviewFormPage> {
+class _TelephoneInterviewFormPageState
+    extends State<TelephoneInterviewFormPage> {
   String? selectedPosition; // Initial value
   String? selectedForm; // Initial value
 
@@ -30,13 +32,16 @@ class _TelephoneInterviewFormPageState extends State<TelephoneInterviewFormPage>
   }
 
   Future<void> fetchQuestions() async {
-    final url = '${baseUrl}/JobForm/getTelephoneInterviewQuestionsByJobTitle/${widget.jobTitle}';
+    final url =
+        '${baseUrl}/JobForm/getTelephoneInterviewQuestionsByJobTitle/${widget.jobTitle}';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       setState(() {
-        questions = data.map((json) => TelephoneInterviewQuestion.fromJson(json)).toList();
+        questions = data
+            .map((json) => TelephoneInterviewQuestion.fromJson(json))
+            .toList();
       });
     } else {
       print('Failed to load questions: ${response.statusCode}');
@@ -44,73 +49,74 @@ class _TelephoneInterviewFormPageState extends State<TelephoneInterviewFormPage>
   }
 
   Future<void> addQuestion(TelephoneInterviewQuestion question) async {
-final prefs = await SharedPreferences.getInstance();
-final userId = prefs.getString('userId');
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
 
-if (userId == null) {
-print('User ID not found');
-return;
-}
+    if (userId == null) {
+      print('User ID not found');
+      return;
+    }
 
-final url = '${baseUrl}/JobForm/add-telephone-interview-questions/$userId/${widget.jobId}';
-final response = await http.post(
-Uri.parse(url),
-headers: <String, String>{
-'Content-Type': 'application/json; charset=UTF-8',
-},
-body: jsonEncode([question.toJson()]),
-);
+    final url =
+        '${baseUrl}/JobForm/add-telephone-interview-questions/$userId/${widget.jobId}';
+    final response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode([question.toJson()]),
+    );
 
-if (response.statusCode == 200) {
+    if (response.statusCode == 200) {
 // Assume question is successfully added to the server
-setState(() {
-questions.add(question);
-});
-ScaffoldMessenger.of(context).showSnackBar(
-SnackBar(
-content: Text('Question added successfully'),
-backgroundColor: Colors.green,
-),
-);
-print('Question added successfully');
-} else {
+      setState(() {
+        questions.add(question);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Question added successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      print('Question added successfully');
+    } else {
 // Handle HTTP error status codes
-ScaffoldMessenger.of(context).showSnackBar(
-SnackBar(
-content: Text('Failed to add question: ${response.statusCode}'),
-backgroundColor: Colors.red,
-),
-);
-print('Failed to add question: ${response.statusCode}');
-}
-}
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add question: ${response.statusCode}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      print('Failed to add question: ${response.statusCode}');
+    }
+  }
 
-Future<void> deleteQuestion(int questionId) async {
-final url = '${baseUrl}/JobForm/deletetelephoneinterviewquestion/$questionId/${widget.jobTitle}';
-final response = await http.delete(Uri.parse(url));
+  Future<void> deleteQuestion(int questionId) async {
+    final url =
+        '${baseUrl}/JobForm/deletetelephoneinterviewquestion/$questionId/${widget.jobTitle}';
+    final response = await http.delete(Uri.parse(url));
 
-if (response.statusCode == 200) {
-setState(() {
-questions.removeWhere((question) => question.id == questionId);
-});
-ScaffoldMessenger.of(context).showSnackBar(
-SnackBar(
-content: Text('Question deleted successfully'),
-backgroundColor: Colors.green,
-),
-);
-print('Question deleted successfully');
-} else {
-ScaffoldMessenger.of(context).showSnackBar(
-SnackBar(
-content: Text('Failed to delete question: ${response.statusCode}'),
-backgroundColor: Colors.red,
-),
-);
-print('Failed to delete question: ${response.statusCode}');
-}
-}
-
+    if (response.statusCode == 200) {
+      setState(() {
+        questions.removeWhere((question) => question.id == questionId);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Question deleted successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      print('Question deleted successfully');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to delete question: ${response.statusCode}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      print('Failed to delete question: ${response.statusCode}');
+    }
+  }
 
   Future<void> updateQuestion(int questionId, String updatedQuestion) async {
     final url =
@@ -227,7 +233,6 @@ print('Failed to delete question: ${response.statusCode}');
     );
   }
 
-
   String newQuestion = '';
 
   Widget _buildAddQuestionForm() {
@@ -275,14 +280,16 @@ print('Failed to delete question: ${response.statusCode}');
             );
           },
         ),
-        SizedBox(height: 10,),
+        SizedBox(
+          height: 10,
+        ),
       ],
     );
   }
 
   Widget _buildSaveButton() {
     return ElevatedButton(
-      onPressed: (){},
+      onPressed: () {},
       style: ElevatedButton.styleFrom(
         backgroundColor: secondColor, // Background color
         shape: RoundedRectangleBorder(
@@ -316,13 +323,15 @@ print('Failed to delete question: ${response.statusCode}');
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             // Display questions list here
             _buildQuestionForm(),
             // Form for adding new questions
             _buildAddQuestionForm(),
             // Save button
-            Center(child: _buildSaveButton()),
+            //Center(child: _buildSaveButton()),
           ],
         ),
       ),
